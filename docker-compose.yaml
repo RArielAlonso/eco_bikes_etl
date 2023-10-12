@@ -296,5 +296,23 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
+  postgres_local:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: ariel
+      POSTGRES_PASSWORD: ariel
+      POSTGRES_DB: eco_bikes
+    container_name: postgres_local
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "ariel","-d","eco_bikes"]
+      interval: 5s
+      retries: 5
+    restart: always
+
 volumes:
   postgres-db-volume:
+  postgres-data:
