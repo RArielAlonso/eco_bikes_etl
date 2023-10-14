@@ -1,13 +1,13 @@
 import requests
 import logging
-from config.config import BASE_URL_WEATHER
+from config.config import BASE_URL_WEATHER, WEATHER_CITY, WEATHER_APP_ID, WEATHER_UNITS
 
-logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
+logging.basicConfig(format="%(name)s - %(asctime)s - %(message)s", level=logging.INFO)
 
 
-def get_weather_data(url):
+def get_weather_data(url, city, app_id, units):
     try:
-        r = requests.get(url)
+        r = requests.get(url, params={"q": city, "appid": app_id, "units": units})
         r.raise_for_status()
         logging.info("Response 200 to request of WEATHER API")
     except requests.exceptions.HTTPError as e:
@@ -21,5 +21,5 @@ def get_weather_data(url):
 
 
 if __name__ == "__main__":
-    data = get_weather_data(BASE_URL_WEATHER)
+    data = get_weather_data(BASE_URL_WEATHER, WEATHER_CITY, WEATHER_APP_ID, WEATHER_UNITS)
     print(data)
