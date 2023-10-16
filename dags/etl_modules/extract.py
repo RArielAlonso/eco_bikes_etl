@@ -15,4 +15,5 @@ def extract():
 
 
 if __name__ == "__main__":
-    print(extract())
+    logging.info("Running ONLY EXTRACT PROCESS FROM THE ETL".center(80, "-"))
+    logging.info(f"The path of the files are: {extract()}")

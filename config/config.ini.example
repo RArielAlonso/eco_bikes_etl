@@ -3,12 +3,12 @@
 # OPEN WEATHER API
 BASE_URL_WEATHER = https://api.openweathermap.org/data/2.5/weather
 WEATHER_CITY=Buenos Aires
-WEATHER_APP_ID=value
+WEATHER_APP_ID=VALUE-TO-CHANGE
 WEATHER_UNITS=metric
 
 # BA OPEN DATA API
-API_CLIENT_ID=value
-API_CLIENT_SECRET=value
+API_CLIENT_ID=VALUE-TO-CHANGE
+API_CLIENT_SECRET=VALUE-TO-CHANGE
 URL_SYSTEM_INFORMATION=https://datosabiertos-transporte-apis.buenosaires.gob.ar:443/ecobici/gbfs/systemInformation
 URL_STATION_STATUS=https://datosabiertos-transporte-apis.buenosaires.gob.ar:443/ecobici/gbfs/stationStatus
 URL_STATION_INFO=https://datosabiertos-transporte-apis.buenosaires.gob.ar:443/ecobici/gbfs/stationInformation
