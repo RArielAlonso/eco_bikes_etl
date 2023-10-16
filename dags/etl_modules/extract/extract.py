@@ -6,11 +6,13 @@ logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=log
 
 
 def extract():
+    json_paths = dict()
     for i in extract_list:
         logging.info(f"Extracting began for {i['name']}")
         request_raw_json = get_request_json(i['base_url'], i['params'])
-        save_json(request_raw_json, i['name'])
+        json_paths[i['name']] = save_json(request_raw_json, i['name'])
+    return json_paths
 
 
 if __name__ == "__main__":
-    extract()
+    print(extract())

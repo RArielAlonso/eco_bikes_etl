@@ -23,5 +23,7 @@ def get_request_json(url, params):
 
 def save_json(request_json, filename):
     logging.info(f"Saving request in json format in {BASE_FILE_DIR}/{filename}.json")
-    with open(f'{BASE_FILE_DIR}/{filename}.json', 'w') as f:
+    json_path = f'{BASE_FILE_DIR}/{filename}.json'
+    with open(json_path, 'w') as f:
         json.dump(request_json, f)
+    return json_path
