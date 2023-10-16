@@ -6,6 +6,7 @@ authors = ["RArielAlonso <rariel.alonso@gmail.com>"]
 readme = "README.md"
 packages = [
     { include = "etl_modules",  from = "dags" },
+    { include = "utils",  from = "dags" },
     { include = "config" }
     ]
 

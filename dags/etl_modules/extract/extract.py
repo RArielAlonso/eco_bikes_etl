@@ -1,9 +1,16 @@
-import pandas as pd
-from dags.etl_modules.extract.extract_eco_bikes import get_bikes_data
-from dags.etl_modules.extract.extract_weather import get_weather_data
-from config.config import API_CLIENT_ID, API_CLIENT_SECRET, URL_STATION_INFO, URL_STATION_STATUS, URL_SYSTEM_INFORMATION,BASE_URL_WEATHER
+import logging
+from utlis.utils import get_request_json, save_json
+from config.config import extract_list
+
+logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO)
 
 
-request_weather = get_weather_data(BASE_URL_WEATHER)
-data = pd.json_normalize(request_weather['main'])
-pd.json_normalize(request_weather['weather'])
+def extract():
+    for i in extract_list:
+        logging.info(f"Extracting began for {i['name']}")
+        request_raw_json = get_request_json(i['base_url'], i['params'])
+        save_json(request_raw_json, i['name'])
+
+
+if __name__ == "__main__":
+    extract()
