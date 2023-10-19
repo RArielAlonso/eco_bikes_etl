@@ -36,11 +36,11 @@ station_status_eco_bikes_ds = {"name": "station_status_eco_bikes",
                                "base_url": URL_STATION_STATUS,
                                "params": ECO_BIKES_PARAMS_API}
 
-station_info_eco_bikes = {"name": "station_info_eco_bikes",
-                          "base_url": URL_STATION_INFO,
-                          "params": ECO_BIKES_PARAMS_API}
+station_info_eco_bikes_ds = {"name": "station_info_eco_bikes",
+                             "base_url": URL_STATION_INFO,
+                             "params": ECO_BIKES_PARAMS_API}
 
 extract_list = [weather_ds,
                 system_info_eco_bikes_ds,
                 station_status_eco_bikes_ds,
-                station_info_eco_bikes]
+                station_info_eco_bikes_ds]
