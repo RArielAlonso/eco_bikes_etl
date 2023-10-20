@@ -1,6 +1,6 @@
 import pandas as pd
 import logging
-# from etl_modules.extract import extract
+from etl_modules.extract import extract
 from utlis.utils import load_json, create_dim_date_table, load_to_parquet
 from config.config import weather_ds, system_info_eco_bikes_ds, station_info_eco_bikes_ds, station_status_eco_bikes_ds
 from config.constants import BASE_FILE_DIR
@@ -8,11 +8,11 @@ from config.constants import BASE_FILE_DIR
 
 logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO)
 
-# request_paths = extract()
-request_paths = {'weather': '/tmp/weather.json',
-                 'system_info_eco_bikes': '/tmp/system_info_eco_bikes.json',
-                 'station_status_eco_bikes': '/tmp/station_status_eco_bikes.json',
-                 'station_info_eco_bikes': '/tmp/station_info_eco_bikes.json'}
+request_paths = extract()
+# request_paths = {'weather': '/tmp/weather.json',
+#                 'system_info_eco_bikes': '/tmp/system_info_eco_bikes.json',
+#                 'station_status_eco_bikes': '/tmp/station_status_eco_bikes.json',
+#                 'station_info_eco_bikes': '/tmp/station_info_eco_bikes.json'}
 
 
 def transform_weather():

@@ -7,10 +7,14 @@ logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=log
 
 def extract():
     json_paths = dict()
-    for i in extract_list:
-        logging.info(f"Extracting began for {i['name']}")
-        request_raw_json = get_request_json(i['base_url'], i['params'])
-        json_paths[i['name']] = save_json(request_raw_json, i['name'])
+    try:
+        for i in extract_list:
+            logging.info(f"Extracting began for {i['name']}")
+            request_raw_json = get_request_json(i['base_url'], i['params'])
+            json_paths[i['name']] = save_json(request_raw_json, i['name'])
+    except BaseException as e:
+        logging.exception("The extract process could not complete".center(80, "-"))
+        logging.exception(f"{e}")
     return json_paths
 
 

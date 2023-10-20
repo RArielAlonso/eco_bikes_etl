@@ -3,28 +3,34 @@ import logging
 import requests
 import pandas as pd
 from config.constants import BASE_FILE_DIR
-import time
+
 
 logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO)
 
 
+def retry(func, retries=3):
+    def retry_wrapper(*args, **kwargs):
+        attempts = 0
+        while attempts < retries:
+            try:
+                return func(*args, **kwargs)
+            except BaseException as e:
+                logging.error(f"Retrying from attempt number {attempts} because of error {e}")
+                attempts += 1
+    return retry_wrapper
+
+
+@retry
 def get_request_json(url, params):
-    try:
-        s = requests.Session()
-        s.headers = {'Accept': 'application/json','Content-Type': 'application/json'}
-        r = s.get(url, params=params, timeout=30)
-        print(r.url)
-        r.raise_for_status()
-        time.sleep(5)
-        logging.info(f"Response 200 to request of {url}")
-    except requests.exceptions.HTTPError as e:
-        logging.error(" ERROR ".center(80, "-"))
-        logging.error(" ---- VERIFY CLIENT ID AND SECRET TO CONNECT TO API".center(80, "-"))
-        raise Exception(f"ERROR {e.errno},{e.strerror}")
-    except requests.exceptions.RequestException as e:
-        logging.error(" ERROR ".center(80, "-"))
-        raise Exception(f"ERROR {e.errno},{e.strerror}")
-    return r.json()
+    logging.info(f" Getting request from API : {url}")
+    s = requests.Session()
+    s.headers = {"accept": "application/json", 'Content-Type': 'application/json; charset=utf-8'}
+    r = s.get(url, params=params, timeout=30)
+    r.raise_for_status()
+    logging.info(f"Response 200 to request from {url}")
+    data = r.json()
+    logging.info(f"Response returned as jsonfrom {url} ")
+    return data
 
 
 def save_json(request_json, filename):
