@@ -44,3 +44,14 @@ extract_list = [weather_ds,
                 system_info_eco_bikes_ds,
                 station_status_eco_bikes_ds,
                 station_info_eco_bikes_ds]
+
+# DB CONNECTIONS
+
+POSTGRES_SCHEMA = config["DEFAULT"]['POSTGRES_SCHEMA']
+POSTGRES_USER = config["DEFAULT"]['POSTGRES_USER']
+POSTGRES_PASS = config["DEFAULT"]['POSTGRES_PASS']
+POSTGRES_HOST = config["DEFAULT"]['POSTGRES_HOST']
+POSTGRES_DB = config["DEFAULT"]['POSTGRES_DB']
+POSTGRES_PORT = config["DEFAULT"]['POSTGRES_PORT']
+POSTGRES_SCHEMA = config["DEFAULT"]['POSTGRES_SCHEMA']
+DB_STR = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASS}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"

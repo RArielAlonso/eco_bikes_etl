@@ -16,6 +16,8 @@ pandas = "^2.1.1"
 requests = "^2.31.0"
 pyarrow = "^13.0.0"
 fastparquet = "^2023.8.0"
+sqlalchemy = "^2.0.22"
+psycopg2-binary = "^2.9.9"
 
 
 [build-system]

@@ -2,6 +2,7 @@ import json
 import logging
 import requests
 import pandas as pd
+from sqlalchemy import create_engine
 from config.constants import BASE_FILE_DIR
 
 
@@ -70,3 +71,12 @@ def load_to_parquet(df, filename):
     parquet_path = f'{BASE_FILE_DIR}/{filename}.parquet'
     df.to_parquet(f"{parquet_path}")
     return parquet_path
+
+
+def df_to_database(df, table_name, connection_string, schema):
+    try:
+        con = create_engine(connection_string, connect_args={'options': f'-csearch_path={schema}'})
+        df.to_sql(name=table_name, con=con, if_exists='append', index=False)
+        print("DF OK")
+    except Exception as e:
+        logging.info(f"Connection error {e}")
