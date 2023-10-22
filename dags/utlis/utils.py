@@ -15,9 +15,11 @@ def retry(func, retries=3):
         while attempts < retries:
             try:
                 return func(*args, **kwargs)
-            except BaseException as e:
-                logging.error(f"Retrying from attempt number {attempts} because of error {e}")
+            except BaseException:
+                logging.error(f"Retrying from attempt number {attempts} because of error in API or data is not in json format")
                 attempts += 1
+        logging.exception('Exceed max retry num: {} failed'.format(attempts))
+        raise Exception("The request from API is not working or the data its not in json format")
     return retry_wrapper
 
 
