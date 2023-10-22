@@ -2,7 +2,7 @@ import json
 import logging
 import requests
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from config.constants import BASE_FILE_DIR
 
 
@@ -82,3 +82,12 @@ def df_to_database(df, table_name, connection_string, schema):
         print("DF OK")
     except Exception as e:
         logging.info(f"Connection error {e}")
+
+
+def get_max_reload(connection_string, schema):
+    conn = create_engine(connection_string, connect_args={'options': f'-csearch_path={schema}'})
+    if pd.read_sql(text("""select max(reload_id) from metadata_load;"""), con=conn).values[0][0] is None:
+        reload_id = 1
+    else:
+        reload_id = pd.read_sql(text("""select max(reload_id) from metadata_load;"""), con=conn).values[0][0]+1
+    return reload_id

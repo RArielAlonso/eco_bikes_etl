@@ -12,3 +12,12 @@ API_CLIENT_SECRET=VALUE-TO-CHANGE
 URL_SYSTEM_INFORMATION=https://datosabiertos-transporte-apis.buenosaires.gob.ar:443/ecobici/gbfs/systemInformation
 URL_STATION_STATUS=https://datosabiertos-transporte-apis.buenosaires.gob.ar:443/ecobici/gbfs/stationStatus
 URL_STATION_INFO=https://datosabiertos-transporte-apis.buenosaires.gob.ar:443/ecobici/gbfs/stationInformation
+
+# DB STR LOCAL
+
+POSTGRES_USER=VALUE-TO-CHANGE
+POSTGRES_PASS=VALUE-TO-CHANGE
+POSTGRES_HOST=localhost
+POSTGRES_DB=eco_bikes
+POSTGRES_PORT=5432
+POSTGRES_SCHEMA=eco_bikes

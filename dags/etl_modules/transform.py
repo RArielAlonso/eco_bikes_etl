@@ -1,8 +1,8 @@
 import pandas as pd
 import logging
 from etl_modules.extract import extract
-from utlis.utils import load_json, create_dim_date_table, load_to_parquet
-from config.config import weather_ds, system_info_eco_bikes_ds, station_info_eco_bikes_ds, station_status_eco_bikes_ds, extract_list
+from utlis.utils import load_json, create_dim_date_table, load_to_parquet, get_max_reload
+from config.config import weather_ds, system_info_eco_bikes_ds, station_info_eco_bikes_ds, station_status_eco_bikes_ds, extract_list, DB_STR, POSTGRES_SCHEMA
 from config.constants import BASE_FILE_DIR
 
 
@@ -59,11 +59,18 @@ def transform(path_jsons):
     try:
         logging.info("Began the TRANSFORM PROCESS".center(80, "-"))
         parquets_path = dict()
+        reload_id = get_max_reload(DB_STR, POSTGRES_SCHEMA)
+        print(reload_id)
         df_dim_date = create_dim_date_table()
+        df_dim_date['reload_id'] = reload_id
         df_fact_weather = transform_weather(path_jsons)
+        df_fact_weather['reload_id'] = reload_id
         df_system_info = transform_system_info(path_jsons)
+        df_system_info['reload_id'] = reload_id
         df_station_status = transform_station_status(path_jsons)
+        df_station_status['reload_id'] = reload_id
         df_station_info = transform_station_info(path_jsons)
+        df_station_info['reload_id'] = reload_id
         list_df = [df_dim_date, df_fact_weather, df_system_info, df_station_status, df_station_info]
         for i in list_df:
             logging.info(f"Generating {i.name}.parquet in {BASE_FILE_DIR}/{i.name}.parquet")
