@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS eco_bikes.station_status_eco_bikes (
 	is_renting int8 NULL,
 	is_returning int8 NULL,
 	reload_id int4 NOT null,
-	primary key (station_id),
+	primary key (station_id,reload_id),
 	FOREIGN KEY (reload_id)	REFERENCES eco_bikes.metadata_load(reload_id)
 );
 
@@ -39,10 +39,12 @@ CREATE TABLE IF NOT EXISTS eco_bikes.station_info_eco_bikes (
 	"_ride_code_support" bool NULL,
 	cross_street text NULL,
 	reload_id int4 NOT NULL,
-	PRIMARY KEY (station_id),
-	FOREIGN KEY (station_id) REFERENCES eco_bikes.station_status_eco_bikes (station_id)
+	start_date timestamp not null,
+	end_date TIMESTAMP NULL DEFAULT '9999-12-30 00:00:00',
+	is_active int4 DEFAULT 1 NOT NULL,
+	primary key (station_id,reload_id),
+	FOREIGN KEY (station_id,reload_id) REFERENCES eco_bikes.station_status_eco_bikes (station_id,reload_id)
 );
-
 
 CREATE TABLE IF NOT EXISTS eco_bikes.system_info_eco_bikes (
 	last_updated timestamp NULL,
@@ -61,7 +63,7 @@ CREATE TABLE IF NOT EXISTS eco_bikes.system_info_eco_bikes (
 	"data._vehicle_count._ebike_count" int8 NULL,
 	"data._station_count" int8 NULL,
 	reload_id int4 NOT NULL,
-	PRIMARY KEY ("data.system_id"),
+	PRIMARY KEY (reload_id),
 	FOREIGN KEY (reload_id)	REFERENCES eco_bikes.metadata_load(reload_id)
 );
 
@@ -82,7 +84,7 @@ CREATE TABLE IF NOT EXISTS eco_bikes.weather (
 	grnd_level int8 NULL,
 	dt timestamp NULL,
 	reload_id int4 NOT NULL,
-	primary key (dt),
+	primary key (reload_id),
 	FOREIGN KEY (reload_id)	REFERENCES eco_bikes.metadata_load(reload_id)
 );
 

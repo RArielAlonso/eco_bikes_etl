@@ -5,7 +5,6 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 from config.constants import BASE_FILE_DIR
 
-
 logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO)
 
 
@@ -64,7 +63,7 @@ def create_dim_date_table(start='2023-01-01', end='2080-12-31'):
     df["is_month_start"] = df.Date.dt.is_month_start
     df["is_month_end"] = df.Date.dt.is_month_end
     df.insert(0, 'date_id', (df.year.astype(str) + df.month.astype(str).str.zfill(2) + df.day.astype(str).str.zfill(2)).astype(int))
-    df.name = "df_dim_date"
+    df.name = "dim_date"
     logging.info("Ended generating the dim date table")
     return df
 
@@ -75,10 +74,10 @@ def load_to_parquet(df, filename):
     return parquet_path
 
 
-def df_to_database(df, table_name, connection_string, schema):
+def df_to_database(df, table_name, connection_string, schema, method):
     try:
         con = create_engine(connection_string, connect_args={'options': f'-csearch_path={schema}'})
-        df.to_sql(name=table_name, con=con, if_exists='append', index=False)
+        df.to_sql(name=table_name, con=con, if_exists=method, index=False)
         print("DF OK")
     except Exception as e:
         logging.info(f"Connection error {e}")

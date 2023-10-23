@@ -1,5 +1,6 @@
 import pandas as pd
 import logging
+import datetime as dt
 from etl_modules.extract import extract
 from utlis.utils import load_json, create_dim_date_table, load_to_parquet, get_max_reload
 from config.config import weather_ds, system_info_eco_bikes_ds, station_info_eco_bikes_ds, station_status_eco_bikes_ds, extract_list, DB_STR, POSTGRES_SCHEMA
@@ -55,29 +56,37 @@ def transform_station_info(path_jsons):
     return data_station_info
 
 
+def transform_metadata_load():
+    date_reload = pd.to_datetime(dt.datetime.now())
+    date_id = int((str(date_reload.year) + str(date_reload.month) + str(date_reload.day)))
+    transform_metadata_load = pd.DataFrame([{"date_reload": date_reload, "date_id": date_id}])
+    transform_metadata_load.name = "metadata_load"
+    return transform_metadata_load
+
+
 def transform(path_jsons):
     try:
         logging.info("Began the TRANSFORM PROCESS".center(80, "-"))
         parquets_path = dict()
+        df_metadata = transform_metadata_load()
         reload_id = get_max_reload(DB_STR, POSTGRES_SCHEMA)
-        print(reload_id)
         df_dim_date = create_dim_date_table()
         df_dim_date['reload_id'] = reload_id
         df_fact_weather = transform_weather(path_jsons)
         df_fact_weather['reload_id'] = reload_id
         df_system_info = transform_system_info(path_jsons)
         df_system_info['reload_id'] = reload_id
-        df_station_status = transform_station_status(path_jsons)
-        df_station_status['reload_id'] = reload_id
         df_station_info = transform_station_info(path_jsons)
         df_station_info['reload_id'] = reload_id
-        list_df = [df_dim_date, df_fact_weather, df_system_info, df_station_status, df_station_info]
+        df_station_status = transform_station_status(path_jsons)
+        df_station_status['reload_id'] = reload_id
+        list_df = [df_dim_date, df_metadata, df_fact_weather, df_system_info, df_station_status, df_station_info]
         for i in list_df:
             logging.info(f"Generating {i.name}.parquet in {BASE_FILE_DIR}/{i.name}.parquet")
             parquets_path[i.name] = load_to_parquet(i, f"{i.name}")
         logging.info("FINISHED the TRANSFORM PROCESS".center(80, "-"))
         return parquets_path
-    except pd.errors as e:
+    except BaseException as e:
         logging.error(e)
 
 
@@ -87,5 +96,5 @@ if __name__ == "__main__":
         path_jsons = extract(extract_list)
         paths = transform(path_jsons)
         logging.info("FINISHED ONLY TRANSFORM PROCESS".center(80, "-"))
-    except BaseException:
-        logging.error("Transform could not complete")
+    except BaseException as e:
+        logging.error("Transform could not complete", e)
