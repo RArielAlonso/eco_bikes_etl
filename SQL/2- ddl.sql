@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS eco_bikes.weather (
 );
 
 
-CREATE TABLE IF NOT EXISTS eco_bikes.df_dim_date (
+CREATE TABLE IF NOT EXISTS eco_bikes.dim_date (
 	date_id int8 NOT NULL,
 	"Date" timestamp NULL,
 	week_day int4 NULL,
