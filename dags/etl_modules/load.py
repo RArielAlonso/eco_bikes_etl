@@ -1,7 +1,7 @@
 import pandas as pd
 import logging
 from dags.etl_modules.transform import extract, transform
-from dags.utlis.utils import df_to_database
+from dags.utils.utils import df_to_database
 from config.config import DB_STR, POSTGRES_SCHEMA, extract_list
 
 

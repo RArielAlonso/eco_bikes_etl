@@ -1,5 +1,5 @@
 import logging
-from utlis.utils import get_request_json, save_json
+from utils.utils import get_request_json, save_json
 from config.config import extract_list
 
 logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO)

@@ -2,7 +2,7 @@ import pandas as pd
 import logging
 import datetime as dt
 from etl_modules.extract import extract
-from utlis.utils import load_json, create_dim_date_table, load_to_parquet, get_max_reload
+from utils.utils import load_json, create_dim_date_table, load_to_parquet, get_max_reload
 from config.config import weather_ds, system_info_eco_bikes_ds, station_info_eco_bikes_ds, station_status_eco_bikes_ds, extract_list, DB_STR, POSTGRES_SCHEMA
 from config.constants import BASE_FILE_DIR
 
