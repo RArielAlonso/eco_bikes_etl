@@ -1,8 +1,6 @@
 CREATE TABLE IF NOT EXISTS eco_bikes.metadata_load (
 	reload_id SERIAL,
 	date_reload text,
-	date_ended text,
-	is_last_reload bool,
 	date_id int8 NOT null,
 	PRIMARY KEY (reload_id)
 );
@@ -32,12 +30,10 @@ CREATE TABLE IF NOT EXISTS eco_bikes.station_info_eco_bikes (
 	lon float8 NULL,
 	altitude float8 NULL,
 	address text NULL,
-	post_code text NULL,
 	capacity int8 NULL,
 	is_charging_station bool NULL,
 	nearby_distance float8 NULL,
 	"_ride_code_support" bool NULL,
-	cross_street text NULL,
 	reload_id int4 NOT NULL,
 	start_date timestamp not null,
 	end_date TIMESTAMP NULL DEFAULT '9999-12-30 00:00:00',

@@ -41,7 +41,7 @@ if __name__ == "__main__":
         paths_parquet = transform(path_jsons)
         paths_parquet_append = {k: v for (k, v) in paths_parquet.items() if k not in ["dim_date", "station_info_eco_bikes"]}
         load_dim_date(paths_parquet)
-        load_station_info(paths_parquet)
+        # load_station_info(paths_parquet)
         load_to_postgres_append(paths_parquet_append)
         logging.info("FINISHED ONLY LOAD PROCESS".center(80, "-"))
     except BaseException as e:
