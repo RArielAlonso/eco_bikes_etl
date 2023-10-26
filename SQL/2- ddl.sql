@@ -5,24 +5,8 @@ CREATE TABLE IF NOT EXISTS eco_bikes.metadata_load (
 	PRIMARY KEY (reload_id)
 );
 
-
-CREATE TABLE IF NOT EXISTS eco_bikes.station_status_eco_bikes (
-	station_id text not NULL,
-	num_bikes_available int8 NULL,
-	num_bikes_disabled int8 NULL,
-	num_docks_available int8 NULL,
-	num_docks_disabled int8 NULL,
-	last_reported timestamp NULL,
-	status text NULL,
-	is_installed int8 NULL,
-	is_renting int8 NULL,
-	is_returning int8 NULL,
-	reload_id int4 NOT null,
-	primary key (station_id,reload_id),
-	FOREIGN KEY (reload_id)	REFERENCES eco_bikes.metadata_load(reload_id)
-);
-
 CREATE TABLE IF NOT EXISTS eco_bikes.station_info_eco_bikes (
+	pk_surrogate_station_info SERIAL,
 	station_id text NULL,
 	station_name text NULL,
 	physical_configuration text NULL,
@@ -38,8 +22,25 @@ CREATE TABLE IF NOT EXISTS eco_bikes.station_info_eco_bikes (
 	start_date timestamp not null,
 	end_date TIMESTAMP NULL DEFAULT '9999-12-30 00:00:00',
 	is_active int4 DEFAULT 1 NOT NULL,
+	primary key (pk_surrogate_station_info)
+);
+
+CREATE TABLE IF NOT EXISTS eco_bikes.station_status_eco_bikes (
+	station_id text not NULL,
+	num_bikes_available int8 NULL,
+	num_bikes_disabled int8 NULL,
+	num_docks_available int8 NULL,
+	num_docks_disabled int8 NULL,
+	last_reported timestamp NULL,
+	status text NULL,
+	is_installed int8 NULL,
+	is_renting int8 NULL,
+	is_returning int8 NULL,
+	reload_id int4 NOT null,
+	pk_surrogate_station_info INT NOT NULL,
 	primary key (station_id,reload_id),
-	FOREIGN KEY (station_id,reload_id) REFERENCES eco_bikes.station_status_eco_bikes (station_id,reload_id)
+	FOREIGN KEY (reload_id)	REFERENCES eco_bikes.metadata_load(reload_id),
+	FOREIGN KEY (pk_surrogate_station_info) REFERENCES eco_bikes.station_info_eco_bikes (pk_surrogate_station_info)
 );
 
 CREATE TABLE IF NOT EXISTS eco_bikes.system_info_eco_bikes (
@@ -99,5 +100,6 @@ CREATE TABLE IF NOT EXISTS eco_bikes.dim_date (
 	is_month_start bool NULL,
 	is_month_end bool NULL,
 	reload_id int4 NOT NULL,
-	PRIMARY KEY (date_id)
+	PRIMARY KEY (date_id),
+	FOREIGN KEY (date_id) REFERENCES eco_bikes.metadata_load
 );

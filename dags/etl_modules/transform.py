@@ -50,7 +50,7 @@ def transform_station_info(path_jsons):
     logging.info("Start transforming the ecobikes_station_info dataframe")
     data_station_info = pd.DataFrame.from_dict(pd.json_normalize(load_json(path_jsons['station_info_eco_bikes']))['data.stations'][0])
     data_station_info.rename(columns={"name": 'station_name'}, inplace=True)
-    data_station_info.drop(columns=['rental_uris', 'rental_methods', 'groups', 'obcn','post_code','cross_street'], inplace=True)
+    data_station_info.drop(columns=['rental_uris', 'rental_methods', 'groups', 'obcn', 'post_code', 'cross_street'], inplace=True)
     data_station_info.name = station_info_eco_bikes_ds['name']
     logging.info("Finished creating the ecobikes_station_info dataframe")
     return data_station_info
