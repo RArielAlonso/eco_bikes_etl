@@ -80,7 +80,7 @@ def transform(path_jsons):
         df_station_info['reload_id'] = reload_id
         df_station_status = transform_station_status(path_jsons)
         df_station_status['reload_id'] = reload_id
-        list_df = [df_dim_date, df_metadata, df_fact_weather, df_system_info, df_station_status, df_station_info]
+        list_df = [df_dim_date, df_metadata, df_fact_weather, df_system_info, df_station_info, df_station_status]
         for i in list_df:
             logging.info(f"Generating {i.name}.parquet in {BASE_FILE_DIR}/{i.name}.parquet")
             parquets_path[i.name] = load_to_parquet(i, f"{i.name}")

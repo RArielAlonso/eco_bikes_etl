@@ -1,3 +1,20 @@
+CREATE TABLE IF NOT EXISTS eco_bikes.dim_date (
+	date_id int8 NOT NULL,
+	"Date" timestamp NULL,
+	week_day int4 NULL,
+	day_name text NULL,
+	"day" int4 NULL,
+	"month" int4 NULL,
+	month_name text NULL,
+	week int8 NULL,
+	quarter int4 NULL,
+	"year" int4 NULL,
+	is_month_start bool NULL,
+	is_month_end bool NULL,
+	reload_id int4 NOT NULL,
+	PRIMARY KEY (date_id)
+);
+
 CREATE TABLE IF NOT EXISTS eco_bikes.metadata_load (
 	reload_id SERIAL,
 	date_reload text,
@@ -18,7 +35,6 @@ CREATE TABLE IF NOT EXISTS eco_bikes.station_info_eco_bikes (
 	is_charging_station bool NULL,
 	nearby_distance float8 NULL,
 	"_ride_code_support" bool NULL,
-	reload_id int4 NOT NULL,
 	start_date timestamp not null,
 	end_date TIMESTAMP NULL DEFAULT '9999-12-30 00:00:00',
 	is_active int4 DEFAULT 1 NOT NULL,
@@ -83,23 +99,4 @@ CREATE TABLE IF NOT EXISTS eco_bikes.weather (
 	reload_id int4 NOT NULL,
 	primary key (reload_id),
 	FOREIGN KEY (reload_id)	REFERENCES eco_bikes.metadata_load(reload_id)
-);
-
-
-CREATE TABLE IF NOT EXISTS eco_bikes.dim_date (
-	date_id int8 NOT NULL,
-	"Date" timestamp NULL,
-	week_day int4 NULL,
-	day_name text NULL,
-	"day" int4 NULL,
-	"month" int4 NULL,
-	month_name text NULL,
-	week int8 NULL,
-	quarter int4 NULL,
-	"year" int4 NULL,
-	is_month_start bool NULL,
-	is_month_end bool NULL,
-	reload_id int4 NOT NULL,
-	PRIMARY KEY (date_id),
-	FOREIGN KEY (date_id) REFERENCES eco_bikes.metadata_load
 );
