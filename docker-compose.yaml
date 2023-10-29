@@ -84,6 +84,8 @@ x-airflow-common:
       condition: service_healthy
     postgres:
       condition: service_healthy
+  networks:
+      - nt-eco-bikes
 
 services:
   postgres:
@@ -100,6 +102,8 @@ services:
       retries: 5
       start_period: 5s
     restart: always
+    networks:
+      - nt-eco-bikes
 
   redis:
     image: redis:latest
@@ -112,6 +116,8 @@ services:
       retries: 50
       start_period: 30s
     restart: always
+    networks:
+      - nt-eco-bikes
 
   airflow-webserver:
     <<: *airflow-common
@@ -129,6 +135,8 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    networks:
+      - nt-eco-bikes
 
   airflow-scheduler:
     <<: *airflow-common
@@ -144,6 +152,8 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    networks:
+      - nt-eco-bikes
 
   airflow-worker:
     <<: *airflow-common
@@ -167,6 +177,8 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    networks:
+      - nt-eco-bikes
 
   airflow-triggerer:
     <<: *airflow-common
@@ -182,6 +194,8 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    networks:
+      - nt-eco-bikes
 
   airflow-init:
     <<: *airflow-common
@@ -273,6 +287,8 @@ services:
       - bash
       - -c
       - airflow
+    networks:
+      - nt-eco-bikes
 
   # You can enable flower by adding "--profile flower" option e.g. docker-compose --profile flower up
   # or by explicitly targeted on the command line e.g. docker-compose up flower.
@@ -295,6 +311,8 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    networks:
+      - nt-eco-bikes
 
   postgres_local:
     image: postgres:13-alpine
@@ -307,18 +325,35 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - $HOME/docker/volumes/postgres:/var/lib/postgresql/data
       - ./SQL:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "ariel","-d","eco_bikes"]
       interval: 5s
       retries: 5
     restart: always
+    networks:
+      - nt-eco-bikes
+      
+  poetry_environment:
+    build:
+      context: .
+      dockerfile: Dockerfile 
+    container_name: poetry_environment
+    volumes:
+      - ./:/app  
+    networks:
+      - nt-eco-bikes
+    command: ["/bin/bash"]
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+networks:
+  nt-eco-bikes:
 
 volumes:
   postgres-db-volume:
   postgres-data:
 
-networks:
-  default:
-    name: nt-eco-bikes

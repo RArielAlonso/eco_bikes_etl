@@ -161,4 +161,4 @@ cython_debug/
 
 logs/*/
 postgres-data/
-config/config.ini
+dags/config/config.ini

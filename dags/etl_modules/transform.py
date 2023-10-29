@@ -50,7 +50,7 @@ def transform_station_info(path_jsons):
     logging.info("Start transforming the ecobikes_station_info dataframe")
     data_station_info = pd.DataFrame.from_dict(pd.json_normalize(load_json(path_jsons['station_info_eco_bikes']))['data.stations'][0])
     data_station_info.rename(columns={"name": 'station_name'}, inplace=True)
-    data_station_info.drop(columns=['rental_uris', 'rental_methods', 'groups', 'obcn'], inplace=True)
+    data_station_info.drop(columns=['rental_uris', 'rental_methods', 'groups', 'obcn', 'post_code', 'cross_street'], inplace=True)
     data_station_info.name = station_info_eco_bikes_ds['name']
     logging.info("Finished creating the ecobikes_station_info dataframe")
     return data_station_info
@@ -80,7 +80,7 @@ def transform(path_jsons):
         df_station_info['reload_id'] = reload_id
         df_station_status = transform_station_status(path_jsons)
         df_station_status['reload_id'] = reload_id
-        list_df = [df_dim_date, df_metadata, df_fact_weather, df_system_info, df_station_status, df_station_info]
+        list_df = [df_dim_date, df_metadata, df_fact_weather, df_system_info, df_station_info, df_station_status]
         for i in list_df:
             logging.info(f"Generating {i.name}.parquet in {BASE_FILE_DIR}/{i.name}.parquet")
             parquets_path[i.name] = load_to_parquet(i, f"{i.name}")
@@ -88,6 +88,7 @@ def transform(path_jsons):
         return parquets_path
     except BaseException as e:
         logging.error(e)
+        raise Exception(e)
 
 
 if __name__ == "__main__":
@@ -98,3 +99,4 @@ if __name__ == "__main__":
         logging.info("FINISHED ONLY TRANSFORM PROCESS".center(80, "-"))
     except BaseException as e:
         logging.error("Transform could not complete", e)
+        raise Exception("Transform could not complete", e)

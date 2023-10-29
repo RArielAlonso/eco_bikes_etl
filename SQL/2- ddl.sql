@@ -1,12 +1,45 @@
+CREATE TABLE IF NOT EXISTS eco_bikes.dim_date (
+	date_id int8 NOT NULL,
+	"Date" timestamp NULL,
+	week_day int4 NULL,
+	day_name text NULL,
+	"day" int4 NULL,
+	"month" int4 NULL,
+	month_name text NULL,
+	week int8 NULL,
+	quarter int4 NULL,
+	"year" int4 NULL,
+	is_month_start bool NULL,
+	is_month_end bool NULL,
+	reload_id int4 NOT NULL,
+	PRIMARY KEY (date_id)
+);
+
 CREATE TABLE IF NOT EXISTS eco_bikes.metadata_load (
 	reload_id SERIAL,
 	date_reload text,
-	date_ended text,
-	is_last_reload bool,
 	date_id int8 NOT null,
 	PRIMARY KEY (reload_id)
 );
 
+CREATE TABLE IF NOT EXISTS eco_bikes.station_info_eco_bikes (
+	pk_surrogate_station_info SERIAL,
+	station_id text NULL,
+	station_name text NULL,
+	physical_configuration text NULL,
+	lat float8 NULL,
+	lon float8 NULL,
+	altitude float8 NULL,
+	address text NULL,
+	capacity int8 NULL,
+	is_charging_station bool NULL,
+	nearby_distance float8 NULL,
+	"_ride_code_support" bool NULL,
+	start_date timestamp not null,
+	end_date TIMESTAMP NULL DEFAULT '9999-12-30 00:00:00',
+	is_active int4 DEFAULT 1 NOT NULL,
+	primary key (pk_surrogate_station_info)
+);
 
 CREATE TABLE IF NOT EXISTS eco_bikes.station_status_eco_bikes (
 	station_id text not NULL,
@@ -20,30 +53,10 @@ CREATE TABLE IF NOT EXISTS eco_bikes.station_status_eco_bikes (
 	is_renting int8 NULL,
 	is_returning int8 NULL,
 	reload_id int4 NOT null,
+	pk_surrogate_station_info INT NOT NULL,
 	primary key (station_id,reload_id),
-	FOREIGN KEY (reload_id)	REFERENCES eco_bikes.metadata_load(reload_id)
-);
-
-CREATE TABLE IF NOT EXISTS eco_bikes.station_info_eco_bikes (
-	station_id text NULL,
-	station_name text NULL,
-	physical_configuration text NULL,
-	lat float8 NULL,
-	lon float8 NULL,
-	altitude float8 NULL,
-	address text NULL,
-	post_code text NULL,
-	capacity int8 NULL,
-	is_charging_station bool NULL,
-	nearby_distance float8 NULL,
-	"_ride_code_support" bool NULL,
-	cross_street text NULL,
-	reload_id int4 NOT NULL,
-	start_date timestamp not null,
-	end_date TIMESTAMP NULL DEFAULT '9999-12-30 00:00:00',
-	is_active int4 DEFAULT 1 NOT NULL,
-	primary key (station_id,reload_id),
-	FOREIGN KEY (station_id,reload_id) REFERENCES eco_bikes.station_status_eco_bikes (station_id,reload_id)
+	FOREIGN KEY (reload_id)	REFERENCES eco_bikes.metadata_load(reload_id),
+	FOREIGN KEY (pk_surrogate_station_info) REFERENCES eco_bikes.station_info_eco_bikes (pk_surrogate_station_info)
 );
 
 CREATE TABLE IF NOT EXISTS eco_bikes.system_info_eco_bikes (
@@ -86,22 +99,4 @@ CREATE TABLE IF NOT EXISTS eco_bikes.weather (
 	reload_id int4 NOT NULL,
 	primary key (reload_id),
 	FOREIGN KEY (reload_id)	REFERENCES eco_bikes.metadata_load(reload_id)
-);
-
-
-CREATE TABLE IF NOT EXISTS eco_bikes.df_dim_date (
-	date_id int8 NOT NULL,
-	"Date" timestamp NULL,
-	week_day int4 NULL,
-	day_name text NULL,
-	"day" int4 NULL,
-	"month" int4 NULL,
-	month_name text NULL,
-	week int8 NULL,
-	quarter int4 NULL,
-	"year" int4 NULL,
-	is_month_start bool NULL,
-	is_month_end bool NULL,
-	reload_id int4 NOT NULL,
-	PRIMARY KEY (date_id)
 );

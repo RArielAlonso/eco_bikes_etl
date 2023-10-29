@@ -15,6 +15,7 @@ def extract(url_list):
     except BaseException as e:
         logging.exception("The extract process could not complete".center(80, "-"))
         logging.exception(f"{e}")
+        raise Exception("The extract process could not complete".center(80, "-"))
     return json_paths
 
 
