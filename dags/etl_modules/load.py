@@ -3,7 +3,7 @@ import logging
 import psycopg2
 from etl_modules.transform import extract, transform
 from utils.utils import df_to_database, add_surrogate_ket_station_status, transform_scd_station_info
-from config.config import DB_STR, POSTGRES_SCHEMA, extract_list
+from config.config import DB_STR, POSTGRES_SCHEMA, extract_list, POSTGRES_USER, POSTGRES_PORT, POSTGRES_DB, POSTGRES_HOST, POSTGRES_PASS
 
 logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO)
 
@@ -30,7 +30,11 @@ def load_to_postgres_append(path_parquet_files):
 
 def load_station_info_to_database(df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append):
     try:
-        connection = psycopg2.connect(user="ariel", password="ariel", host="postgres_local", port="5432", database="eco_bikes")
+        connection = psycopg2.connect(user=POSTGRES_USER,
+                                      password=POSTGRES_PASS,
+                                      host=POSTGRES_HOST,
+                                      port=POSTGRES_PORT,
+                                      database=POSTGRES_DB)
         cur = connection.cursor()
         for index, row in df_scd2_records_final_replace.iterrows():
             # Assuming your_table_name is the name of the table you want to update

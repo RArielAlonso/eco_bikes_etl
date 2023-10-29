@@ -334,8 +334,8 @@ services:
     restart: always
     networks:
       - nt-eco-bikes
-
-poetry_environment:
+      
+  poetry_environment:
     build:
       context: .
       dockerfile: Dockerfile 
