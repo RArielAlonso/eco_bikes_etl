@@ -1,10 +1,9 @@
 import pandas as pd
 import logging
 import psycopg2
-from dags.etl_modules.transform import extract, transform
-from dags.utils.utils import df_to_database, add_surrogate_ket_station_status, transform_scd_station_info
+from etl_modules.transform import extract, transform
+from utils.utils import df_to_database, add_surrogate_ket_station_status, transform_scd_station_info
 from config.config import DB_STR, POSTGRES_SCHEMA, extract_list
-
 
 logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO)
 
@@ -31,37 +30,33 @@ def load_to_postgres_append(path_parquet_files):
 
 def load_station_info_to_database(df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append):
     try:
-        connection = psycopg2.connect(user="ariel", password="ariel", host="localhost", port="5432", database="eco_bikes")
+        connection = psycopg2.connect(user="ariel", password="ariel", host="postgres_local", port="5432", database="eco_bikes")
         cur = connection.cursor()
         for index, row in df_scd2_records_final_replace.iterrows():
             # Assuming your_table_name is the name of the table you want to update
             # Assuming your_primary_key_column is the primary key column of your table
             # Assuming your_primary_key_value is the value of the primary key for the specific row you want to update
             update_query = "UPDATE eco_bikes.station_info_eco_bikes SET "
-            
             # Dynamically construct the SET clause of the update query
             set_clauses = ', '.join([f"{col} = %s" for col in df_scd2_records_final_replace.columns])
-            update_query += set_clauses
-            
+            update_query += set_clauses            
             # Specify the WHERE clause for the specific row to update
             update_query += f" WHERE station_id = '{row['station_id']}' and is_active=1 "
-            
             # Extract values from the DataFrame
             values = tuple([row[col] for col in df_scd2_records_final_replace.columns])
-                
             # Execute the update query with parameterized values
             cur.execute(update_query, values)
             connection.commit()
         df_to_database(df_new_records_final, 'station_info_eco_bikes', DB_STR, POSTGRES_SCHEMA, "append")
         df_to_database(df_scd2_records_final_append, 'station_info_eco_bikes', DB_STR, POSTGRES_SCHEMA, "append")
     except (Exception, psycopg2.Error) as error:
-        print("Error while fetching data from PostgreSQL", error)
+        raise psycopg2.Error("Error while fetching data from PostgreSQL", error)
     finally:
         cur.close()
         connection.close()
 
 
-if __name__ == "__main__":
+def load():
     try:
         logging.info("Running ONLY LOAD PROCESS".center(80, "-"))
         path_jsons = extract(extract_list)
@@ -74,3 +69,8 @@ if __name__ == "__main__":
         logging.info("FINISHED ONLY LOAD PROCESS".center(80, "-"))
     except BaseException as e:
         logging.error("LOAD could not complete", e)
+        raise Exception("LOAD could not complete", e)
+
+
+if __name__ == "__main__":
+    load()

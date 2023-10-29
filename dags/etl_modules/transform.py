@@ -88,6 +88,7 @@ def transform(path_jsons):
         return parquets_path
     except BaseException as e:
         logging.error(e)
+        raise Exception(e)
 
 
 if __name__ == "__main__":
@@ -98,3 +99,4 @@ if __name__ == "__main__":
         logging.info("FINISHED ONLY TRANSFORM PROCESS".center(80, "-"))
     except BaseException as e:
         logging.error("Transform could not complete", e)
+        raise Exception("Transform could not complete", e)

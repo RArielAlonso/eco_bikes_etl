@@ -1,7 +1,7 @@
 import configparser
 
 config = configparser.ConfigParser()
-config.read("config/config.ini")
+config.read("dags/config/config.ini")
 
 # URL FOR WEATHER
 BASE_URL_WEATHER = config["DEFAULT"]["BASE_URL_WEATHER"]
