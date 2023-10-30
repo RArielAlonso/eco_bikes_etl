@@ -344,7 +344,7 @@ services:
       - ./:/app  
     networks:
       - nt-eco-bikes
-    command: ["/bin/bash"]
+    # command: ["/bin/bash"]
     depends_on:
       <<: *airflow-common-depends-on
       airflow-init:

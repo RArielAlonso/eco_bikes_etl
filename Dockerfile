@@ -23,5 +23,5 @@ RUN poetry install --no-root
 # Copy the script you want to run with Airflow
 COPY . .
 
-CMD ["poetry", "run", "python" , "dags/etl_modules/load.py"]
+CMD ["poetry", "install"]
 #CMD ["bash", "-c", "sleep infinity"]

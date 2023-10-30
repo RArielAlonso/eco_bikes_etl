@@ -122,6 +122,7 @@ Here I have set up two DAGS:
 - Add unit tests
 - Add github actions
 - Test with pull request
+- Add triggers in airflow
 - Verify the timestamp when running through docker
 - Run in google cloud
 - Get more detailed in the ETL process, splitting more the tasks

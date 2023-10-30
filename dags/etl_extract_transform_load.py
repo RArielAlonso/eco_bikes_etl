@@ -8,9 +8,11 @@ from etl_modules.load import load_dim_date, load_station_info_to_database, load_
 from config.config import extract_list, DB_STR, POSTGRES_SCHEMA
 
 default_args = {
-    'owner': 'airflow',
+    'owner': 'Ariel Alonso',
+    'email': ['rariel.alonso@gmail.com'],
     'start_date': datetime(2023, 10, 28),
-    'retries': 1,
+    'email_on_failure': False,
+    'email_on_retry': False,
 }
 
 
@@ -34,7 +36,7 @@ def load_task(ti):
     load_to_postgres_append(paths_parquet_append)
 
 
-with DAG('etl_extract_transform_load', default_args=default_args, schedule_interval=None, catchup=False) as dag:
+with DAG('etl_extract_transform_load', default_args=default_args, schedule_interval="@hourly", catchup=False) as dag:
     start_task = EmptyOperator(task_id="start_etl", trigger_rule='all_success')
     extract_task = PythonOperator(
         task_id='extract',
