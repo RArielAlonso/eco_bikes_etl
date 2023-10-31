@@ -36,7 +36,7 @@ def load_task(ti):
     load_to_postgres_append(paths_parquet_append)
 
 
-with DAG('etl_extract_transform_load', default_args=default_args, schedule_interval="@hourly", catchup=False) as dag:
+with DAG('2-etl_extract_transform_load', default_args=default_args, schedule_interval="@hourly", catchup=False) as dag:
     start_task = EmptyOperator(task_id="start_etl", trigger_rule='all_success')
     extract_task = PythonOperator(
         task_id='extract',

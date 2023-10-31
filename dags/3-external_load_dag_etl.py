@@ -9,7 +9,7 @@ default_args = {
 }
 
 
-@dag('external_all_in_one_etl', default_args=default_args, schedule_interval=None, catchup=False)
+@dag('3-external_all_in_one_etl', default_args=default_args, schedule_interval=None, catchup=False)
 def dag_external_general_load():
     @task.external_python(python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
     def load_external():
