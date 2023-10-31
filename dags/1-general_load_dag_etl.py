@@ -2,6 +2,7 @@ from datetime import datetime
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from etl_modules.load import load
+import cowsayw
 
 
 default_args = {

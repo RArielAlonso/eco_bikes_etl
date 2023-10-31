@@ -9,7 +9,7 @@ default_args = {
 }
 
 
-@dag('4-external_etl_extract_transform_load', default_args=default_args, schedule_interval=None, catchup=False)
+@dag('4-external_etl_extract_transform_load', default_args=default_args, schedule_interval="@hourly", catchup=False)
 def dag_external_general_load():
     @task.external_python(python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
     def extract_task():
