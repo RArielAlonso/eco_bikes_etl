@@ -15,7 +15,7 @@ def run_custom_function():
     load()
 
 
-with DAG('all_in_one_ETL', default_args=default_args, schedule_interval=None, catchup=False) as dag:
+with DAG('1-all_in_one_ETL', default_args=default_args, schedule_interval=None, catchup=False) as dag:
     run_custom_task = PythonOperator(
         task_id='all_in_one_ETL',
         python_callable=run_custom_function,
