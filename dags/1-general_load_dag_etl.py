@@ -1,7 +1,8 @@
 from datetime import datetime
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
-from etl_modules.load import load  # Import functions from your custom package
+from etl_modules.load import load
+
 
 default_args = {
     'owner': 'airflow',
