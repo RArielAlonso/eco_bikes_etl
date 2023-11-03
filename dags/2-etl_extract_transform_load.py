@@ -1,6 +1,6 @@
 from datetime import datetime
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python import PythonOperator
 from airflow.operators.empty import EmptyOperator
 from etl_modules.extract import extract
 from etl_modules.transform import transform

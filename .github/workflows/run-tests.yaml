@@ -1,0 +1,30 @@
+name: Python application test with pytest
+
+on: [pull_request]
+
+jobs:
+  run-tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout git repo
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+
+      - name: Install dependencies with poetry
+        run: |
+          poetry install
+
+      - name: Run pytest
+        run: |
+          cd dags
+          poetry run python -m pytest tests
