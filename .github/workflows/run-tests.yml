@@ -25,11 +25,6 @@ jobs:
           poetry install
 
       - name: Run pytest
-        env:
-          BASE_URL_WEATHER : {{ secrets.BASE_URL_WEATHER }}
-          WEATHER_CITY: {{ secrets.WEATHER_CITY }}
-          WEATHER_APP_ID: {{ secrets.WEATHER_APP_ID }}
-          WEATHER_UNITS: {{ secrets.WEATHER_UNITS }}
         run: |
           cd dags
           poetry run python -m pytest tests
