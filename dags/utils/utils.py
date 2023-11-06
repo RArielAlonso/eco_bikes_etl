@@ -112,8 +112,8 @@ def transform_scd_station_info(path_parquet, string_connection, schema):
     logging.info(f"Reading parquet file: {path_parquet['station_info_eco_bikes']}.parquet in {path_parquet['station_info_eco_bikes']}")
     data_src = pd.read_parquet(path_parquet['station_info_eco_bikes'])
     conn = create_engine(string_connection, connect_args={'options': f'-csearch_path={schema}'})
-    data_target = pd.read_sql_query("SELECT * FROM eco_bikes.station_info_eco_bikes", con=conn)    
-    datetime_now = pd.to_datetime(dt.datetime.now(),format="%Y-%m-%d %HH:%MM:%SS")
+    data_target = pd.read_sql_query("SELECT * FROM eco_bikes.station_info_eco_bikes", con=conn)
+    datetime_now = pd.to_datetime(dt.datetime.now(), format="%Y-%m-%d %HH:%MM:%SS")
     data_target_current = data_target[(data_target["is_active"] == 1)]
     df_merge_col = pd.merge(data_src, data_target_current, on='station_id', how='left')
     new_records_filter = pd.isnull(df_merge_col).any(axis=1)

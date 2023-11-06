@@ -163,3 +163,4 @@ logs/*/
 postgres-data/
 dags/config/config.ini
 .devcontainer/
+.vscode/
