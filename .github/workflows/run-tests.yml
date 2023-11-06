@@ -2,12 +2,6 @@ name: Python application test with pytest
 
 on: [push,pull_request]
 
-env:
-  BASE_URL_WEATHER : {{ secrets.BASE_URL_WEATHER }}
-  WEATHER_CITY: {{ secrets.WEATHER_CITY }}
-  WEATHER_APP_ID: {{ secrets.WEATHER_APP_ID }}
-  WEATHER_UNITS: {{ secrets.WEATHER_UNITS }}
-
 jobs:
   run-tests:
     name: Run tests
@@ -34,4 +28,10 @@ jobs:
         run: |
           cd dags
           poetry run python -m pytest tests
+        env:
+          BASE_URL_WEATHER : {{ secrets.BASE_URL_WEATHER }}
+          WEATHER_CITY: {{ secrets.WEATHER_CITY }}
+          WEATHER_APP_ID: {{ secrets.WEATHER_APP_ID }}
+          WEATHER_UNITS: {{ secrets.WEATHER_UNITS }}
+
         
