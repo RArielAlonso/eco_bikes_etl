@@ -1,13 +1,17 @@
 import configparser
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 config = configparser.ConfigParser()
 config.read("dags/config/config.ini")
 
 # URL FOR WEATHER
-BASE_URL_WEATHER = config["DEFAULT"]["BASE_URL_WEATHER"]
-WEATHER_CITY = config["DEFAULT"]["WEATHER_CITY"]
-WEATHER_APP_ID = config["DEFAULT"]["WEATHER_APP_ID"]
-WEATHER_UNITS = config["DEFAULT"]["WEATHER_UNITS"]
+BASE_URL_WEATHER = os.getenv("BASE_URL_WEATHER")
+WEATHER_CITY = os.getenv("WEATHER_CITY")
+WEATHER_APP_ID = os.getenv("WEATHER_APP_ID")
+WEATHER_UNITS = os.getenv("WEATHER_UNITS")
 WEATHER_PARAMS_API = {"q": WEATHER_CITY,
                       "appid": WEATHER_APP_ID,
                       "units": WEATHER_UNITS
