@@ -124,13 +124,30 @@ Here I have set up four DAGS:
 
 ## Tests and Github Actions
 
-The test of the transformation of weather has enviroment variables so you must set them in the repository to be read.
+The project has set up a CI/CD with [Github Actions](https://docs.github.com/es/actions), this CI/CD runs two tests automatically that will be explained next:
 
-- EXPLAIN THE PROCESS
-- EXPLAIN THE TESTS DONE
+1. *Test in dim date table creation*
+
+This test checks that the script that creates the **dim date** table is correct. It is done by the [Pandas Testing Function](https://pandas.pydata.org/docs/reference/api/pandas.testing.assert_frame_equal.html).
+
+2. *Test in the transform of the response of weather API*
+
+The test checks the transformation of the json response of the weather API to the dataframe previous to be created the parquet file.
+For this example I used the patch decorator when loading the raw json file of the request.get of the API, by setting the patch we avoid requesting the API.
+
+Both tests can be run locally, by running this command in the main folder of the project. The module used to run theese tests is [Pytest](https://docs.pytest.org/en/7.4.x/)
+
+***ATTENTION***: Be aware that the poetry enviroment is activated, because p
+
+```
+pytest dags/tests -vv 
+``` 
+The -vv flag is for having a more verbose response of the tests in case of failure.
+
+With the example defined in point number 2, we can extend the tests to all of the transformations, as we can mock the response of loading the json file.
 
 
-## To continue working:
+## To be continue working:
 - Verify the timestamp when running through docker
 - Run in google cloud
 - Get more detailed in the ETL process, splitting more the process
