@@ -58,7 +58,7 @@ def transform_station_info(path_jsons):
 
 def transform_metadata_load():
     date_reload = pd.to_datetime(dt.datetime.now())
-    date_id = int((str(date_reload.year) + str(date_reload.month) + str(date_reload.day)))
+    date_id = int((str(date_reload.year) + str(date_reload.month).zfill(2) + str(date_reload.day).zfill(2)))
     transform_metadata_load = pd.DataFrame([{"date_reload": date_reload, "date_id": date_id}])
     transform_metadata_load.name = "metadata_load"
     return transform_metadata_load

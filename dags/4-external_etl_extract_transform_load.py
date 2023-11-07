@@ -22,7 +22,7 @@ def dag_external_general_load():
     def transform_task(path_json):
         from etl_modules.transform import transform
         path_parquet = transform(path_json)
-        return path_parquet  
+        return path_parquet
 
     @task.external_python(python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
     def load_task(paths_parquet):
