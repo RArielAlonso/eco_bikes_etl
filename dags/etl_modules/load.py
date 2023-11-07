@@ -43,7 +43,7 @@ def load_station_info_to_database(df_scd2_records_final_replace, df_new_records_
             update_query = "UPDATE eco_bikes.station_info_eco_bikes SET "
             # Dynamically construct the SET clause of the update query
             set_clauses = ', '.join([f"{col} = %s" for col in df_scd2_records_final_replace.columns])
-            update_query += set_clauses            
+            update_query += set_clauses
             # Specify the WHERE clause for the specific row to update
             update_query += f" WHERE station_id = '{row['station_id']}' and is_active=1 "
             # Extract values from the DataFrame
