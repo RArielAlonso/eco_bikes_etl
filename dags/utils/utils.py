@@ -1,10 +1,13 @@
 import json
+import os
 import logging
 import requests
 import pandas as pd
 import datetime as dt
+from google.cloud import bigquery
 from sqlalchemy import create_engine, text
 from config.constants import BASE_FILE_DIR
+from google.oauth2 import service_account
 
 logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO)
 
@@ -209,3 +212,65 @@ def transform_scd_station_info(path_parquet, string_connection, schema):
     df_scd2_records_final_append
 
     return df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append
+
+
+def gcp_create_dataset_and_tables(credentials_path, project_id, dataset_id, sql_file_path):
+    # Get credentials and other environment variables
+
+    # Initialize BigQuery client with credentials
+    client = bigquery.Client.from_service_account_json(credentials_path, project=project_id)
+
+    # Create a new dataset if it does not exist
+    dataset_ref = client.dataset(dataset_id)
+    dataset = bigquery.Dataset(dataset_ref)
+    try:
+        client.get_dataset(dataset)
+    except Exception:
+        logging.info(f"Creating dataset '{project_id}.{dataset_id}'")
+        client.create_dataset(dataset)  # Create the dataset
+
+    # Read SQL statements from the SQL file
+    for filename in os.listdir(sql_file_path):
+        if filename.endswith('.sql'):
+            sql_file_path = os.path.join(sql_file_path, filename)
+            # Read SQL statements from the SQL file
+            with open(sql_file_path, 'r') as sql_file:
+                sql_statements = sql_file.read()
+
+            # Split SQL statements into individual queries
+            queries = sql_statements.split(';')
+
+            # Run each query to create tables
+            for query in queries:
+                query = query.strip()
+                if query:
+                    logging.info(f"Executing query: {query}")
+                    job_config = bigquery.QueryJobConfig()
+                    job_config.use_query_cache = False
+                    query_job = client.query(query, location='US', job_config=job_config)
+
+                    # Wait for the query job to complete
+                    query_job.result()
+
+            logging.info(f"Tables created in BigQuery dataset '{project_id}.{dataset_id}' from SQL file '{sql_file_path}'")
+
+
+def gcp_get_max_reload(path_to_json_credentials, project_id, dataset_id):
+    credentials = service_account.Credentials.from_service_account_file(path_to_json_credentials)
+    sql = f"""select max(reload_id) from {dataset_id}.metadata_load;"""
+    data = pd.read_gbq(sql, project_id=project_id, credentials=credentials).values[0][0]
+    if data is pd.NA:
+        reload_id = 1
+    else:
+        reload_id = data.values+1
+    return reload_id
+
+
+def df_to_gcbq(df, table_name, path_to_json_credentials, project_id, method):
+    credentials = service_account.Credentials.from_service_account_file(path_to_json_credentials)
+    try:
+        table_name = f"eco_bikes_dataset.{table_name}"
+        df.to_gbq(table_name, project_id=project_id, if_exists=method, credentials=credentials)
+    except Exception as e:
+        logging.error(f"Connection error {e}")
+        raise Exception(f"Connection error {e}")
