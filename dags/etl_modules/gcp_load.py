@@ -65,7 +65,7 @@ def gcp_load_station_info(df_scd2_records_final_replace, df_new_records_final, d
             cursor.execute(update_query, values)
             connection.commit()
         df_to_gcbq(df_new_records_final, 'station_info_eco_bikes', GCP_JSON_CREDENTIALS, GCP_PROJECT_ID, "append")
-        # df_to_gcbq(df_scd2_records_final_append, 'station_info_eco_bikes', GCP_JSON_CREDENTIALS, GCP_PROJECT_ID, "append")
+        df_to_gcbq(df_scd2_records_final_append, 'station_info_eco_bikes', GCP_JSON_CREDENTIALS, GCP_PROJECT_ID, "append")
     except Exception as error:
         raise (f"Error while fetching data from GCP {GCP_PROJECT_ID}", error)
     finally:
@@ -105,6 +105,10 @@ def gcp_load():
                                                                                                                            GCP_JSON_CREDENTIALS,
                                                                                                                            GCP_PROJECT_ID,
                                                                                                                            GCP_DATASET_ID)
+        print(df_scd2_records_final_replace.shape)
+        print(df_new_records_final.shape)
+        print(df_scd2_records_final_append.shape)
+        breakpoint()
         gcp_load_station_info(df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append)
         load_to_gcp_append(paths_parquet_append)
         logging.info("FINISHED ONLY LOAD PROCESS".center(80, "-"))
