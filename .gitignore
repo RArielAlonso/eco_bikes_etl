@@ -164,3 +164,4 @@ postgres-data/
 dags/config/config.ini
 .devcontainer/
 .vscode/
+dags/config/eco-bikes-gcp.json

@@ -32,6 +32,9 @@ def transform_system_info(path_jsons):
     data_system_info = pd.json_normalize(load_json(path_jsons['system_info_eco_bikes']))
     data_system_info['last_updated'] = pd.to_datetime(data_system_info['last_updated']-10400, unit='s')
     data_system_info.name = system_info_eco_bikes_ds['name']
+    data_system_info.columns = ['last_updated', 'ttl', 'system_id', 'language', 'name', 'timezone', 'build_version', 'build_label', 'build_hash',
+                                'build_number', 'mobile_head_version', 'mobile_minimum_supported_version', 'vehicle_count_mechanical_count',
+                                'vehicle_count_ebike_count', 'station_count']
     logging.info("Finished creating the ecobikes_system_info dataframe")
     return data_system_info
 
