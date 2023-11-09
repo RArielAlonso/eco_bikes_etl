@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS eco_bikes_dataset.dim_date (
   date_id INT64 NOT NULL,
-  date DATE,
+  date TIMESTAMP,
   week_day INT64,
   day_name STRING,
   day INT64,
@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS eco_bikes_dataset.dim_date (
 );
 
 CREATE TABLE IF NOT EXISTS eco_bikes_dataset.metadata_load (
-  reload_id INT64,
-  date_reload DATE,
+  reload_id INT64 NOT NULL,
+  date_reload TIMESTAMP,
   date_id INT64 NOT NULL,
 );
 
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS eco_bikes_dataset.station_info_eco_bikes (
   nearby_distance FLOAT64,
   _ride_code_support BOOL,
   start_date TIMESTAMP NOT NULL,
-  end_date TIMESTAMP DEFAULT TIMESTAMP '9999-12-30 00:00:00 UTC',
+  end_date TIMESTAMP DEFAULT TIMESTAMP '2261-12-30 00:00:00 UTC',
   is_active INT64 DEFAULT 1 NOT NULL
 );
 
