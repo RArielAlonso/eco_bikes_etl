@@ -4,6 +4,7 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends \
          vim \
   && apt-get autoremove -yqq --purge \
+  &&  apt-get install --reinstall python3-distutils -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 USER airflow
