@@ -7,7 +7,7 @@ from utils.utils import gcp_create_dataset_and_tables, gcp_get_max_reload, load_
 from utils.utils import gcp_add_surrogate_ket_station_status, gcp_transform_scd_station_info
 from config.config import extract_list, GCP_DATASET_ID, GCP_JSON_CREDENTIALS, GCP_PROJECT_ID
 from config.constants import BASE_FILE_DIR, GCP_SQL_FILE_DIR
-import google.cloud.bigquery.dbapi as bq
+from google.cloud import bigquery
 
 
 logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO)
@@ -46,31 +46,34 @@ def gcp_transform(path_jsons):
 
 
 def gcp_load_station_info(df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append):
+    df_to_gcbq(df_scd2_records_final_replace, 'temp_station_info', GCP_JSON_CREDENTIALS, GCP_PROJECT_ID, "replace")
+    breakpoint()
     try:
-        connection = bq.connect()
-        cursor = connection.cursor()
-        for index, row in df_scd2_records_final_replace.iterrows():
-            # Assuming your_table_name is the name of the table you want to update
-            # Assuming your_primary_key_column is the primary key column of your table
-            # Assuming your_primary_key_value is the value of the primary key for the specific row you want to update
-            update_query = "UPDATE eco_bikes_dataset.station_info_eco_bikes SET "
-            # Dynamically construct the SET clause of the update query
-            set_clauses = ', '.join([f"{col} = %s" for col in df_scd2_records_final_replace.columns])
-            update_query += set_clauses
-            # Specify the WHERE clause for the specific row to update
-            update_query += f" WHERE station_id = '{row['station_id']}' and is_active=1 "
-            # Extract values from the DataFrame
-            values = tuple([row[col] for col in df_scd2_records_final_replace.columns])
-            # Execute the update query with parameterized values
-            cursor.execute(update_query, values)
-            connection.commit()
+        client = bigquery.Client.from_service_account_json(GCP_JSON_CREDENTIALS, project=GCP_PROJECT_ID)
+        try:
+            query = f"""MERGE {GCP_DATASET_ID}.station_info_eco_bikes T
+                        USING {GCP_DATASET_ID}.temp_station_info S
+                        on T.pk_surrogate_station_info = S.pk_surrogate_station_info
+                        WHEN MATCHED THEN
+                        UPDATE SET t.is_active = s.is_active,t.end_date = s.end_date;
+                        TRUNCATE TABLE {GCP_DATASET_ID}.temp_station_info;"""
+            logging.info(f"Executing query: {query}")
+            logging.info(f"MERGE {GCP_DATASET_ID}.station_info_eco_bikes USING {GCP_DATASET_ID}.temp_station_info ")
+            logging.info(f"TRUNCATE TABLE {GCP_DATASET_ID}.temp_station_info")
+            job_config = bigquery.QueryJobConfig()
+            job_config.use_query_cache = False
+            query_job = client.query(query, location='US', job_config=job_config)
+            query_job.result()
+            logging.info("Finished updating the values of the station_info tables")
+        except Exception:
+            logging.error("Could not update the values of the station_info tables")
+            raise ("Could not update the values of the station_info tables")
         df_to_gcbq(df_new_records_final, 'station_info_eco_bikes', GCP_JSON_CREDENTIALS, GCP_PROJECT_ID, "append")
         df_to_gcbq(df_scd2_records_final_append, 'station_info_eco_bikes', GCP_JSON_CREDENTIALS, GCP_PROJECT_ID, "append")
     except Exception as error:
         raise (f"Error while fetching data from GCP {GCP_PROJECT_ID}", error)
     finally:
-        cursor.close()
-        connection.close()
+        logging.info("LOADING SC2 TABLE station_info_eco_bikes FINISHED - Function gcp_load_station_info")
 
 
 def load_dim_date(path_parquet):

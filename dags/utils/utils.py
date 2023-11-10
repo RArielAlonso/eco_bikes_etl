@@ -390,10 +390,12 @@ def gcp_transform_scd_station_info(path_parquet, credentials, project_id, datase
     df_scd2_records_final_append['start_date'] = datetime_now
     df_scd2_records_final_append['end_date'] = pd.to_datetime('2261-12-30 00:00:00')
     df_scd2_records_final_append['is_active'] = 1
-    df_scd2_records_final_replace['pk_surrogate_station_info'] = df_scd2_records_final_replace['start_date'].dt.strftime('%Y%m%d%H%M') + df_scd2_records_final_replace['station_id']
-    df_new_records_final['pk_surrogate_station_info'] = df_new_records_final['start_date'].dt.strftime('%Y%m%d%H%M') + df_new_records_final['station_id']
-    df_scd2_records_final_append['pk_surrogate_station_info'] = df_scd2_records_final_append['start_date'].dt.strftime('%Y%m%d%H%M') + df_scd2_records_final_append['station_id']
-    df_scd2_records_final_replace['pk_surrogate_station_info']=df_scd2_records_final_replace['pk_surrogate_station_info'].astype(int)
-    df_new_records_final['pk_surrogate_station_info']=df_new_records_final['pk_surrogate_station_info'].astype(int)
-    df_scd2_records_final_append['pk_surrogate_station_info']=df_scd2_records_final_append['pk_surrogate_station_info'].astype(int)
+    df_scd2_records_final_replace['pk_surrogate_station_info'] = df_scd2_records_final_replace['start_date'].dt.strftime('%Y%m%d%H%M%S') \
+        + df_scd2_records_final_replace['station_id']
+    df_new_records_final['pk_surrogate_station_info'] = df_new_records_final['start_date'].dt.strftime('%Y%m%d%H%M%S') + df_new_records_final['station_id']
+    df_scd2_records_final_append['pk_surrogate_station_info'] = df_scd2_records_final_append['start_date'].dt.strftime('%Y%m%d%H%M%S') \
+        + df_scd2_records_final_append['station_id']
+    df_scd2_records_final_replace['pk_surrogate_station_info'] = df_scd2_records_final_replace['pk_surrogate_station_info'].astype(int)
+    df_new_records_final['pk_surrogate_station_info'] = df_new_records_final['pk_surrogate_station_info'].astype(int)
+    df_scd2_records_final_append['pk_surrogate_station_info'] = df_scd2_records_final_append['pk_surrogate_station_info'].astype(int)
     return df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append

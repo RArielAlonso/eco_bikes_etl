@@ -38,6 +38,24 @@ CREATE TABLE IF NOT EXISTS eco_bikes_dataset.station_info_eco_bikes (
   is_active INT64 DEFAULT 1 NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS eco_bikes_dataset.temp_station_info (
+  pk_surrogate_station_info INT64,
+  station_id STRING,
+  station_name STRING,
+  physical_configuration STRING,
+  lat FLOAT64,
+  lon FLOAT64,
+  altitude FLOAT64,
+  address STRING,
+  capacity INT64,
+  is_charging_station BOOL,
+  nearby_distance FLOAT64,
+  _ride_code_support BOOL,
+  start_date TIMESTAMP NOT NULL,
+  end_date TIMESTAMP DEFAULT TIMESTAMP '2261-12-30 00:00:00 UTC',
+  is_active INT64 DEFAULT 1 NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS eco_bikes_dataset.station_status_eco_bikes (
   station_id STRING NOT NULL,
   num_bikes_available INT64,
