@@ -1148,7 +1148,7 @@ files = [
 [package.dependencies]
 google-auth = {version = ">=1.25.0,<3.0dev", markers = "python_version >= \"3.6\""}
 google-auth-oauthlib = {version = ">=0.4.0", markers = "python_version >= \"3.6\""}
-setuptools = "68.2.0"
+setuptools = "*"
 
 [[package]]
 name = "pytest"
@@ -1448,4 +1448,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.13"
-content-hash = "207fe342cbdb42dd418d8f67bb87f36c9ffff980e3675ca14c756e81209c32dc"
+content-hash = "7995a5a64cb0e161dbeb292254bee5137c74b3e9383dd5886b768373b78ce8c6"
