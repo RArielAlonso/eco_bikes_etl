@@ -302,7 +302,6 @@ def gcp_transform_scd_station_info(path_parquet, credentials, project_id, datase
     data_target_current = data_target[(data_target["is_active"] == 1)]
     df_merge_col = pd.merge(data_src, data_target_current, on='station_id', how='left')
     new_records_filter = pd.isnull(df_merge_col).any(axis=1)
-
     df_new_records = df_merge_col[new_records_filter]
     df_excluding_new = pd.concat([df_merge_col, df_new_records], axis=0).drop_duplicates(keep=False)
     df_new_records_final = df_new_records.copy()
@@ -362,7 +361,7 @@ def gcp_transform_scd_station_info(path_parquet, credentials, project_id, datase
                                              'nearby_distance',
                                              '_ride_code_support',
                                              "start_date"]
-    df_scd2_records_final_replace['start_date'] = df_scd2_records_final_replace['start_date'].astype(str)
+    df_scd2_records_final_replace['start_date'] = df_scd2_records_final_replace['start_date']
     df_scd2_records_final_replace['end_date'] = datetime_now
     df_scd2_records_final_replace['is_active'] = 0
     df_scd2_records_final_replace
@@ -391,6 +390,12 @@ def gcp_transform_scd_station_info(path_parquet, credentials, project_id, datase
     df_scd2_records_final_append['start_date'] = datetime_now
     df_scd2_records_final_append['end_date'] = pd.to_datetime('2261-12-30 00:00:00')
     df_scd2_records_final_append['is_active'] = 1
-    df_scd2_records_final_append
-
+    df_scd2_records_final_replace['pk_surrogate_station_info'] = df_scd2_records_final_replace['start_date'].dt.strftime('%Y%m%d%H%M%S') \
+        + df_scd2_records_final_replace['station_id']
+    df_new_records_final['pk_surrogate_station_info'] = df_new_records_final['start_date'].dt.strftime('%Y%m%d%H%M%S') + df_new_records_final['station_id']
+    df_scd2_records_final_append['pk_surrogate_station_info'] = df_scd2_records_final_append['start_date'].dt.strftime('%Y%m%d%H%M%S') \
+        + df_scd2_records_final_append['station_id']
+    df_scd2_records_final_replace['pk_surrogate_station_info'] = df_scd2_records_final_replace['pk_surrogate_station_info'].astype(int)
+    df_new_records_final['pk_surrogate_station_info'] = df_new_records_final['pk_surrogate_station_info'].astype(int)
+    df_scd2_records_final_append['pk_surrogate_station_info'] = df_scd2_records_final_append['pk_surrogate_station_info'].astype(int)
     return df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append
