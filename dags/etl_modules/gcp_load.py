@@ -47,7 +47,6 @@ def gcp_transform(path_jsons):
 
 def gcp_load_station_info(df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append):
     df_to_gcbq(df_scd2_records_final_replace, 'temp_station_info', GCP_JSON_CREDENTIALS, GCP_PROJECT_ID, "replace")
-    breakpoint()
     try:
         client = bigquery.Client.from_service_account_json(GCP_JSON_CREDENTIALS, project=GCP_PROJECT_ID)
         try:
@@ -108,10 +107,6 @@ def gcp_load():
                                                                                                                            GCP_JSON_CREDENTIALS,
                                                                                                                            GCP_PROJECT_ID,
                                                                                                                            GCP_DATASET_ID)
-        print(df_scd2_records_final_replace.shape)
-        print(df_new_records_final.shape)
-        print(df_scd2_records_final_append.shape)
-        breakpoint()
         gcp_load_station_info(df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append)
         load_to_gcp_append(paths_parquet_append)
         logging.info("FINISHED ONLY LOAD PROCESS".center(80, "-"))

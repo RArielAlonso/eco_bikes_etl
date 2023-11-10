@@ -9,37 +9,43 @@ default_args = {
 }
 
 
-@dag('5-gcp-load', default_args=default_args, schedule_interval="@hourly", catchup=False)
+@dag('5-GCP-ETL', default_args=default_args, schedule_interval="@hourly", catchup=False)
 def dag_external_general_load():
-    @task.external_python(python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
+    @task.external_python(task_id='extract', python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
     def extract_task():
         from etl_modules.extract import extract
         from config.config import extract_list
         paths_json = extract(extract_list)
         return paths_json
 
-    @task.external_python(python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
-    def transform_task(path_json):
-        from etl_modules.transform import transform
-        path_parquet = transform(path_json)
+    @task.external_python(task_id='gcp_transform', python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
+    def gcp_transform_task(path_json):
+        from etl_modules.gcp_load import gcp_transform
+        path_parquet = gcp_transform(path_json)
         return path_parquet
 
-    @task.external_python(python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
-    def load_task(paths_parquet):
-        from etl_modules.load import transform_scd_station_info, load_dim_date, load_station_info_to_database, load_to_postgres_append
-        from config.config import DB_STR, POSTGRES_SCHEMA
+    @task.external_python(task_id='gcp_load', python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
+    def gcp_load_task(paths_parquet):
+        from etl_modules.gcp_load import gcp_transform_scd_station_info, load_dim_date, gcp_load_station_info, load_to_gcp_append
+        from config.config import GCP_JSON_CREDENTIALS, GCP_PROJECT_ID, GCP_DATASET_ID
         paths_parquet_append = {k: v for (k, v) in paths_parquet.items() if k not in ["dim_date", "station_info_eco_bikes"]}
         load_dim_date(paths_parquet)
-        df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append = transform_scd_station_info(paths_parquet, DB_STR, POSTGRES_SCHEMA)
-        load_station_info_to_database(df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append)
-        load_to_postgres_append(paths_parquet_append)
+        df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append = gcp_transform_scd_station_info(paths_parquet,
+                                                                                                                           GCP_JSON_CREDENTIALS,
+                                                                                                                           GCP_PROJECT_ID,
+                                                                                                                           GCP_DATASET_ID)
+        gcp_load_station_info(df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append)
+        load_to_gcp_append(paths_parquet_append)
 
-    @task.external_python(python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
-    def task_gcp_create_dataset():
+    @task.external_python(task_id='gcp_create_tables', python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
+    def gcp_create_dataset_tables():
         from etl_modules.gcp_load import gcp_create_schema
         gcp_create_schema()
 
-    load_task(transform_task(extract_task()))
+    start = gcp_create_dataset_tables()
+    end = gcp_load_task(gcp_transform_task(extract_task()))
+
+    start >> end
 
 
 dag_external_general_load()
