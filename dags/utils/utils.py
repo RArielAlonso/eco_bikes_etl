@@ -9,6 +9,7 @@ from sqlalchemy import create_engine, text
 from config.constants import BASE_FILE_DIR
 from google.oauth2 import service_account
 import gcsfs
+from google.cloud.exceptions import Conflict
 
 
 logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO)
@@ -294,9 +295,18 @@ def gcp_add_surrogate_ket_station_status(df, credentials, project_id, dataset_id
     return df
 
 
-def gcp_transform_scd_station_info(path_parquet, credentials, project_id, dataset_id):
+def gcp_read_parquet(filename, project_id, path_storage_credentials, bucket_name):
+    logging.info(f"Loading parquet file from {bucket_name}/parquet/{filename}")
+    fs = gcsfs.GCSFileSystem(project=project_id, token=path_storage_credentials)
+    parquet_path = f'{bucket_name}/parquet/{filename}'
+    bucket_path = f"gs://{parquet_path}"
+    data = pd.read_parquet(bucket_path, filesystem=fs)
+    return data
+
+
+def gcp_transform_scd_station_info(path_parquet, credentials, project_id, dataset_id, bucket_name):
     logging.info(f"Reading parquet file: {path_parquet['station_info_eco_bikes']}.parquet in {path_parquet['station_info_eco_bikes']}")
-    data_src = pd.read_parquet(path_parquet['station_info_eco_bikes'])
+    data_src = gcp_read_parquet(path_parquet['station_info_eco_bikes'], project_id, credentials, bucket_name)
     credentials = service_account.Credentials.from_service_account_file(credentials)
     sql_target = f"SELECT * FROM {dataset_id}.station_info_eco_bikes"
     data_target = pd.read_gbq(sql_target, project_id=project_id, credentials=credentials)
@@ -404,7 +414,7 @@ def gcp_transform_scd_station_info(path_parquet, credentials, project_id, datase
 
 
 def gcp_save_json(request_json, filename, path_storage_credentials, bucket_name):
-    logging.info(f"Saving request in json format in {bucket_name}/{filename}.json")
+    logging.info(f"Saving request in json format in GCP BUCKET: {bucket_name}/{filename}.json")
     storage_client = storage.Client.from_service_account_json(path_storage_credentials)
     BUCKET = storage_client.get_bucket(bucket_name)
     path_storage = f"json/{filename}.json"
@@ -417,7 +427,7 @@ def gcp_save_json(request_json, filename, path_storage_credentials, bucket_name)
 
 
 def gcp_load_json(path, path_storage_credentials, bucket_name):
-    logging.info(f"Loading json file from {bucket_name}/json/{path}.json")
+    logging.info(f"Loading json file from {bucket_name}/json/{path}")
     storage_client = storage.Client.from_service_account_json(path_storage_credentials)
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(path)
@@ -427,9 +437,26 @@ def gcp_load_json(path, path_storage_credentials, bucket_name):
 
 
 def gcp_load_to_parquet(df, filename, project_id, path_storage_credentials, bucket_name):
-    logging.info(f"Loading parquet file from {bucket_name}/parquet/{filename}.json")
+    logging.info(f"Loading parquet file from {bucket_name}/parquet/{filename}")
     fs = gcsfs.GCSFileSystem(project=project_id, token=path_storage_credentials)
-    parquet_path = f'{bucket_name}/parquet/{filename}.parquet'
+    filename = f"{filename}.parquet"
+    parquet_path = f'{bucket_name}/parquet/{filename}'
     bucket_path = f"gs://{parquet_path}"
     with fs.open(bucket_path, 'wb') as f:
         df.to_parquet(f)
+    return filename
+
+
+def gcp_create_bucket_and_folders(project_id, bucket_name, folder_names, credentials_path):
+    """Creates a new bucket and folders inside that bucket."""
+    storage_client = storage.Client.from_service_account_json(credentials_path)
+    try:
+        bucket = storage_client.get_bucket(bucket_name)
+        logging.info(f'Bucket {bucket.name} is already created')
+    except Conflict:
+        bucket = storage_client.create_bucket(bucket_name, predefined_acl='private')
+        logging.info(f'GCP {project_id} creating - Bucket {bucket.name}')
+        for folder_name in folder_names:
+            blob = storage.Blob(folder_name + '/', bucket)
+            blob.upload_from_string('')
+            logging.info(f'GCP {project_id} - Bucket {bucket.name} - creating Folder {folder_name} created inside {bucket.name}')

@@ -5,7 +5,7 @@ from etl_modules.extract import gcp_extract
 from utils.utils import gcp_load_json, create_dim_date_table, gcp_load_to_parquet, gcp_get_max_reload
 from config.config import weather_ds, system_info_eco_bikes_ds, station_info_eco_bikes_ds, station_status_eco_bikes_ds, extract_list
 from config.config import GCP_STORAGE_JSON_CREDENTIALS, GCP_PROJECT_ID, GCP_DATASET_ID, GCP_BQ_JSON_CREDENTIALS
-from config.constants import BASE_FILE_DIR, GCP_BUCKET_NAME
+from config.constants import GCP_BUCKET_NAME
 
 
 logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO)
@@ -19,10 +19,11 @@ def gcp_transform_weather(path_jsons):
     data_date['dt'] = data_date['dt']+data_date['timezone']
     data_date = pd.to_datetime(data_date['dt'], unit='s')
     data_weather = pd.concat([data_clouds, data_temperature, data_date], axis=1)
+    data_weather = data_weather[~data_weather.isnull().any(axis=1)]
     data_weather.insert(0,
                         'date_id',
-                        (data_weather['dt'].dt.year.astype(str) +
-                         data_weather['dt'].dt.month.astype(str).str.zfill(2) + data_weather['dt'].dt.day.astype(str).str.zfill(2)).astype(int))
+                        (data_weather['dt'].dt.strftime('%Y%m%d').astype(int))
+                        )
     data_weather.name = weather_ds['name']
     logging.info("Finished creating the weather dataframe")
     return data_weather
@@ -74,8 +75,9 @@ def gcp_transform(path_jsons):
     try:
         logging.info("Began the TRANSFORM PROCESS".center(80, "-"))
         parquets_path = dict()
-        df_metadata = gcp_transform_metadata_load()
         reload_id = gcp_get_max_reload(GCP_BQ_JSON_CREDENTIALS, GCP_PROJECT_ID, GCP_DATASET_ID)
+        df_metadata = gcp_transform_metadata_load()
+        df_metadata['reload_id'] = reload_id
         df_dim_date = create_dim_date_table()
         df_dim_date['reload_id'] = reload_id
         df_fact_weather = gcp_transform_weather(path_jsons)
@@ -88,7 +90,7 @@ def gcp_transform(path_jsons):
         df_station_status['reload_id'] = reload_id
         list_df = [df_dim_date, df_metadata, df_fact_weather, df_system_info, df_station_info, df_station_status]
         for i in list_df:
-            logging.info(f"Generating {i.name}.parquet in {BASE_FILE_DIR}/{i.name}.parquet")
+            logging.info(f"Generating {i.name}.parquet in GCP PROJECT: {GCP_PROJECT_ID} - BUCKET: {GCP_BUCKET_NAME}/parquet/{i.name}.parquet")
             parquets_path[i.name] = gcp_load_to_parquet(i, f"{i.name}", GCP_PROJECT_ID, GCP_BQ_JSON_CREDENTIALS, GCP_BUCKET_NAME)
         logging.info("FINISHED the TRANSFORM PROCESS".center(80, "-"))
         return parquets_path
