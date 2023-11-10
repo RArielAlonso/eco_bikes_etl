@@ -5,7 +5,7 @@ from etl_modules.transform import transform_metadata_load, create_dim_date_table
 from etl_modules.transform import transform_system_info, transform_station_info, transform_station_status
 from utils.utils import gcp_create_dataset_and_tables, gcp_get_max_reload, load_to_parquet, df_to_gcbq
 from utils.utils import gcp_add_surrogate_ket_station_status, gcp_transform_scd_station_info
-from config.config import extract_list, GCP_DATASET_ID, GCP_JSON_CREDENTIALS, GCP_PROJECT_ID
+from config.config import extract_list, GCP_DATASET_ID, GCP_BQ_JSON_CREDENTIALS, GCP_PROJECT_ID
 from config.constants import BASE_FILE_DIR, GCP_SQL_FILE_DIR
 from google.cloud import bigquery
 
@@ -14,14 +14,14 @@ logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=log
 
 
 def gcp_create_schema():
-    gcp_create_dataset_and_tables(GCP_JSON_CREDENTIALS, GCP_PROJECT_ID, GCP_DATASET_ID, GCP_SQL_FILE_DIR)
+    gcp_create_dataset_and_tables(GCP_BQ_JSON_CREDENTIALS, GCP_PROJECT_ID, GCP_DATASET_ID, GCP_SQL_FILE_DIR)
 
 
 def gcp_transform(path_jsons):
     try:
         logging.info("Began the TRANSFORM PROCESS".center(80, "-"))
         parquets_path = dict()
-        reload_id = gcp_get_max_reload(GCP_JSON_CREDENTIALS, GCP_PROJECT_ID, GCP_DATASET_ID)
+        reload_id = gcp_get_max_reload(GCP_BQ_JSON_CREDENTIALS, GCP_PROJECT_ID, GCP_DATASET_ID)
         df_metadata = transform_metadata_load()
         df_metadata['reload_id'] = reload_id
         df_dim_date = create_dim_date_table()
@@ -46,9 +46,9 @@ def gcp_transform(path_jsons):
 
 
 def gcp_load_station_info(df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append):
-    df_to_gcbq(df_scd2_records_final_replace, 'temp_station_info', GCP_JSON_CREDENTIALS, GCP_PROJECT_ID, "replace")
+    df_to_gcbq(df_scd2_records_final_replace, 'temp_station_info', GCP_BQ_JSON_CREDENTIALS, GCP_PROJECT_ID, "replace")
     try:
-        client = bigquery.Client.from_service_account_json(GCP_JSON_CREDENTIALS, project=GCP_PROJECT_ID)
+        client = bigquery.Client.from_service_account_json(GCP_BQ_JSON_CREDENTIALS, project=GCP_PROJECT_ID)
         try:
             query = f"""MERGE {GCP_DATASET_ID}.station_info_eco_bikes T
                         USING {GCP_DATASET_ID}.temp_station_info S
@@ -67,8 +67,8 @@ def gcp_load_station_info(df_scd2_records_final_replace, df_new_records_final, d
         except Exception:
             logging.error("Could not update the values of the station_info tables")
             raise ("Could not update the values of the station_info tables")
-        df_to_gcbq(df_new_records_final, 'station_info_eco_bikes', GCP_JSON_CREDENTIALS, GCP_PROJECT_ID, "append")
-        df_to_gcbq(df_scd2_records_final_append, 'station_info_eco_bikes', GCP_JSON_CREDENTIALS, GCP_PROJECT_ID, "append")
+        df_to_gcbq(df_new_records_final, 'station_info_eco_bikes', GCP_BQ_JSON_CREDENTIALS, GCP_PROJECT_ID, "append")
+        df_to_gcbq(df_scd2_records_final_append, 'station_info_eco_bikes', GCP_BQ_JSON_CREDENTIALS, GCP_PROJECT_ID, "append")
     except Exception as error:
         raise (f"Error while fetching data from GCP {GCP_PROJECT_ID}", error)
     finally:
@@ -79,7 +79,7 @@ def load_dim_date(path_parquet):
     logging.info(f"Reading parquet file: {path_parquet['dim_date']}.parquet in {path_parquet['dim_date']}")
     data = pd.read_parquet(path_parquet['dim_date'])
     logging.info(f"Loading dataframe: {path_parquet['dim_date']} to Database")
-    df_to_gcbq(data, 'dim_date', GCP_JSON_CREDENTIALS, GCP_PROJECT_ID,  "replace")
+    df_to_gcbq(data, 'dim_date', GCP_BQ_JSON_CREDENTIALS, GCP_PROJECT_ID,  "replace")
     logging.info(f"DATAFRAME LOADED: {path_parquet['dim_date']} to Database")
 
 
@@ -88,10 +88,10 @@ def load_to_gcp_append(path_parquet_files):
         logging.info(f"Reading parquet file: {key}_gcp.parquet in {value}")
         data = pd.read_parquet(value)
         if key == 'station_status_eco_bikes':
-            data = gcp_add_surrogate_ket_station_status(data, GCP_JSON_CREDENTIALS, GCP_PROJECT_ID, GCP_DATASET_ID)
+            data = gcp_add_surrogate_ket_station_status(data, GCP_BQ_JSON_CREDENTIALS, GCP_PROJECT_ID, GCP_DATASET_ID)
         logging.info(f"Loading dataframe: {key} to Database")
         # data.to_sql(key, create_engine(DB_STR, connect_args={'options': '-csearch_path=public'}), if_exists='append', index=False)
-        df_to_gcbq(data, key, GCP_JSON_CREDENTIALS, GCP_PROJECT_ID,  "append")
+        df_to_gcbq(data, key, GCP_BQ_JSON_CREDENTIALS, GCP_PROJECT_ID,  "append")
         logging.info(f"LOADED {key} to DATABASE IN PROJECT {GCP_PROJECT_ID}")
 
 
@@ -104,7 +104,7 @@ def gcp_load():
         paths_parquet_append = {k: v for (k, v) in paths_parquet.items() if k not in ["dim_date", "station_info_eco_bikes"]}
         load_dim_date(paths_parquet)
         df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append = gcp_transform_scd_station_info(paths_parquet,
-                                                                                                                           GCP_JSON_CREDENTIALS,
+                                                                                                                           GCP_BQ_JSON_CREDENTIALS,
                                                                                                                            GCP_PROJECT_ID,
                                                                                                                            GCP_DATASET_ID)
         gcp_load_station_info(df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append)

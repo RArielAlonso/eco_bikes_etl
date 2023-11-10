@@ -4,10 +4,12 @@ import logging
 import requests
 import pandas as pd
 import datetime as dt
-from google.cloud import bigquery
+from google.cloud import bigquery, storage
 from sqlalchemy import create_engine, text
 from config.constants import BASE_FILE_DIR
 from google.oauth2 import service_account
+import gcsfs
+
 
 logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO)
 
@@ -399,3 +401,35 @@ def gcp_transform_scd_station_info(path_parquet, credentials, project_id, datase
     df_new_records_final['pk_surrogate_station_info'] = df_new_records_final['pk_surrogate_station_info'].astype(int)
     df_scd2_records_final_append['pk_surrogate_station_info'] = df_scd2_records_final_append['pk_surrogate_station_info'].astype(int)
     return df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append
+
+
+def gcp_save_json(request_json, filename, path_storage_credentials, bucket_name):
+    logging.info(f"Saving request in json format in {bucket_name}/{filename}.json")
+    storage_client = storage.Client.from_service_account_json(path_storage_credentials)
+    BUCKET = storage_client.get_bucket(bucket_name)
+    path_storage = f"json/{filename}.json"
+    blob = BUCKET.blob(path_storage)
+    blob.upload_from_string(
+        data=json.dumps(request_json),
+        content_type='application/json'
+        )
+    return path_storage
+
+
+def gcp_load_json(path, path_storage_credentials, bucket_name):
+    logging.info(f"Loading json file from {bucket_name}/json/{path}.json")
+    storage_client = storage.Client.from_service_account_json(path_storage_credentials)
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(path)
+    str_json = blob.download_as_text()
+    dict_result = json.loads(str_json)
+    return dict_result
+
+
+def gcp_load_to_parquet(df, filename, project_id, path_storage_credentials, bucket_name):
+    logging.info(f"Loading parquet file from {bucket_name}/parquet/{filename}.json")
+    fs = gcsfs.GCSFileSystem(project=project_id, token=path_storage_credentials)
+    parquet_path = f'{bucket_name}/parquet/{filename}.parquet'
+    bucket_path = f"gs://{parquet_path}"
+    with fs.open(bucket_path, 'wb') as f:
+        df.to_parquet(f)
