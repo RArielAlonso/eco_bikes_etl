@@ -18,10 +18,11 @@ def transform_weather(path_jsons):
     data_date['dt'] = data_date['dt']+data_date['timezone']
     data_date = pd.to_datetime(data_date['dt'], unit='s')
     data_weather = pd.concat([data_clouds, data_temperature, data_date], axis=1)
+    data_weather = data_weather[~data_weather.isnull().any(axis=1)]
     data_weather.insert(0,
                         'date_id',
-                        (data_weather['dt'].dt.year.astype(str) +
-                         data_weather['dt'].dt.month.astype(str).str.zfill(2) + data_weather['dt'].dt.day.astype(str).str.zfill(2)).astype(int))
+                        (data_weather['dt'].dt.strftime('%Y%m%d').astype(int))
+                        )
     data_weather.name = weather_ds['name']
     logging.info("Finished creating the weather dataframe")
     return data_weather
