@@ -1,5 +1,5 @@
-from pathlib import Path
 import os
+from pathlib import Path
 
 BASE_FILE_DIR = Path("/tmp")
 GCP_BUCKET_NAME = "eco_bikes_bucket"

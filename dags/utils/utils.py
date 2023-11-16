@@ -1,20 +1,19 @@
-import json
-import os
-import logging
-import requests
-import pandas as pd
 import datetime as dt
-from google.cloud import bigquery, storage
-from sqlalchemy import create_engine, text
-from config.constants import BASE_FILE_DIR
-from google.oauth2 import service_account
+import json
+import logging
+import os
+
 import gcsfs
+import pandas as pd
+import requests
+from config.constants import BASE_FILE_DIR
+from google.cloud import bigquery, storage
 from google.cloud.exceptions import Conflict
+from google.oauth2 import service_account
+from sqlalchemy import create_engine, text
 
 
-logging.basicConfig(
-    format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO
-)
+logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO)
 
 
 def retry(func, retries=3):

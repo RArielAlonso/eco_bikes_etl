@@ -1,6 +1,6 @@
 from datetime import datetime
-from airflow.decorators import dag, task
 
+from airflow.decorators import dag, task
 
 default_args = {
     "owner": "airflow",
@@ -20,9 +20,9 @@ def dag_external_general_load():
         python="/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python"
     )
     def extract_task():
+        from config.config import extract_list
         from etl_modules.extract import extract
         from config.config import extract_list
-
         paths_json = extract(extract_list)
         return paths_json
 
@@ -39,19 +39,9 @@ def dag_external_general_load():
         python="/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python"
     )
     def load_task(paths_parquet):
-        from etl_modules.load import (
-            transform_scd_station_info,
-            load_dim_date,
-            load_station_info_to_database,
-            load_to_postgres_append,
-        )
+        from etl_modules.load import transform_scd_station_info, load_dim_date, load_station_info_to_database, load_to_postgres_append
         from config.config import DB_STR, POSTGRES_SCHEMA
-
-        paths_parquet_append = {
-            k: v
-            for (k, v) in paths_parquet.items()
-            if k not in ["dim_date", "station_info_eco_bikes"]
-        }
+        paths_parquet_append = {k: v for (k, v) in paths_parquet.items() if k not in ["dim_date", "station_info_eco_bikes"]}
         load_dim_date(paths_parquet)
         (
             df_scd2_records_final_replace,

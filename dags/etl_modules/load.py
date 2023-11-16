@@ -1,26 +1,22 @@
-import pandas as pd
 import logging
+
+import pandas as pd
 import psycopg2
-from etl_modules.transform import extract, transform
-from utils.utils import (
-    df_to_database,
-    add_surrogate_ket_station_status,
-    transform_scd_station_info,
-)
 from config.config import (
     DB_STR,
-    POSTGRES_SCHEMA,
-    extract_list,
-    POSTGRES_USER,
-    POSTGRES_PORT,
     POSTGRES_DB,
     POSTGRES_HOST,
     POSTGRES_PASS,
+    POSTGRES_PORT,
+    POSTGRES_SCHEMA,
+    POSTGRES_USER,
+    extract_list,
 )
+from etl_modules.transform import extract, transform
+from utils.utils import df_to_database, add_surrogate_ket_station_status, transform_scd_station_info
+from config.config import DB_STR, POSTGRES_SCHEMA, extract_list, POSTGRES_USER, POSTGRES_PORT, POSTGRES_DB, POSTGRES_HOST, POSTGRES_PASS
 
-logging.basicConfig(
-    format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO
-)
+logging.basicConfig(format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO)
 
 
 def load_dim_date(path_parquet):

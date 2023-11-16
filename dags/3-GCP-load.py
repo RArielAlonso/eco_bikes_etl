@@ -1,6 +1,6 @@
 from datetime import datetime
-from airflow.decorators import dag, task
 
+from airflow.decorators import dag, task
 
 default_args = {
     "owner": "airflow",
@@ -16,9 +16,9 @@ def dag_external_general_load():
         python="/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python",
     )
     def extract_task():
+        from config.config import extract_list
         from etl_modules.extract import gcp_extract
         from config.config import extract_list
-
         paths_json = gcp_extract(extract_list)
         return paths_json
 
@@ -37,24 +37,10 @@ def dag_external_general_load():
         python="/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python",
     )
     def gcp_load_task(paths_parquet):
-        from etl_modules.gcp_load import (
-            gcp_transform_scd_station_info,
-            gcp_load_dim_date,
-            gcp_load_station_info,
-            load_to_gcp_append,
-        )
-        from config.config import (
-            GCP_BQ_JSON_CREDENTIALS,
-            GCP_PROJECT_ID,
-            GCP_DATASET_ID,
-        )
+        from etl_modules.gcp_load import gcp_transform_scd_station_info, gcp_load_dim_date, gcp_load_station_info, load_to_gcp_append
+        from config.config import GCP_BQ_JSON_CREDENTIALS, GCP_PROJECT_ID, GCP_DATASET_ID
         from config.constants import GCP_BUCKET_NAME
-
-        paths_parquet_append = {
-            k: v
-            for (k, v) in paths_parquet.items()
-            if k not in ["dim_date", "station_info_eco_bikes"]
-        }
+        paths_parquet_append = {k: v for (k, v) in paths_parquet.items() if k not in ["dim_date", "station_info_eco_bikes"]}
         gcp_load_dim_date(paths_parquet)
         (
             df_scd2_records_final_replace,

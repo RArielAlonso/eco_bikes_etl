@@ -1,28 +1,16 @@
-import pandas as pd
-import logging
 import datetime as dt
 from etl_modules.extract import gcp_extract
-from utils.utils import (
-    gcp_load_json,
-    create_dim_date_table,
-    gcp_load_to_parquet,
-    gcp_get_max_reload,
-)
-from config.config import (
-    weather_ds,
-    system_info_eco_bikes_ds,
-    station_info_eco_bikes_ds,
-    station_status_eco_bikes_ds,
-    extract_list,
-)
-from config.config import (
-    GCP_STORAGE_JSON_CREDENTIALS,
-    GCP_PROJECT_ID,
-    GCP_DATASET_ID,
-    GCP_BQ_JSON_CREDENTIALS,
-)
+from utils.utils import gcp_load_json, create_dim_date_table, gcp_load_to_parquet, gcp_get_max_reload
+from config.config import weather_ds, system_info_eco_bikes_ds, station_info_eco_bikes_ds, station_status_eco_bikes_ds, extract_list
+from config.config import GCP_STORAGE_JSON_CREDENTIALS, GCP_PROJECT_ID, GCP_DATASET_ID, GCP_BQ_JSON_CREDENTIALS
 from config.constants import GCP_BUCKET_NAME
-
+from etl_modules.extract import gcp_extract
+from utils.utils import (
+    create_dim_date_table,
+    gcp_get_max_reload,
+    gcp_load_json,
+    gcp_load_to_parquet,
+)
 
 logging.basicConfig(
     format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO

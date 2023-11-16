@@ -1,7 +1,8 @@
 import logging
-from utils.utils import get_request_json, save_json, gcp_save_json
-from config.config import extract_list, GCP_STORAGE_JSON_CREDENTIALS
+
+from config.config import GCP_STORAGE_JSON_CREDENTIALS, extract_list
 from config.constants import GCP_BUCKET_NAME
+from utils.utils import gcp_save_json, get_request_json, save_json
 
 logging.basicConfig(
     format="%(asctime)s - %(filename)s - %(message)s", level=logging.INFO

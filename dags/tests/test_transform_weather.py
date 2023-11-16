@@ -1,5 +1,6 @@
-from etl_modules.transform import transform_weather
 from unittest.mock import patch
+
+from etl_modules.transform import transform_weather
 
 
 @patch("utils.utils.json.load")
