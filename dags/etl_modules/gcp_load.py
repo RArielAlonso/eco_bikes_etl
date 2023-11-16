@@ -72,7 +72,7 @@ def load_to_gcp_append(path_parquet_files):
 def gcp_load():
     try:
         logging.info("Running ONLY LOAD PROCESS".center(80, "-"))
-        # gcp_create_schema()
+        gcp_create_schema()
         gcp_create_bucket()
         path_jsons = gcp_extract(extract_list)
         paths_parquet = gcp_transform(path_jsons)
