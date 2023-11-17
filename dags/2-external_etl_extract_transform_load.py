@@ -1,5 +1,6 @@
 from datetime import datetime
 from airflow.decorators import dag, task
+from config.constants import PATH_TO_POETRY_ENV
 
 
 default_args = {
@@ -11,20 +12,20 @@ default_args = {
 
 @dag('2-external_etl_extract_transform_load', default_args=default_args, schedule_interval="@hourly", catchup=False)
 def dag_external_general_load():
-    @task.external_python(python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
+    @task.external_python(python=PATH_TO_POETRY_ENV)
     def extract_task():
         from etl_modules.extract import extract
         from config.config import extract_list
         paths_json = extract(extract_list)
         return paths_json
 
-    @task.external_python(python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
+    @task.external_python(python=PATH_TO_POETRY_ENV)
     def transform_task(path_json):
         from etl_modules.transform import transform
         path_parquet = transform(path_json)
         return path_parquet
 
-    @task.external_python(python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
+    @task.external_python(python=PATH_TO_POETRY_ENV)
     def load_task(paths_parquet):
         from etl_modules.load import transform_scd_station_info, load_dim_date, load_station_info_to_database, load_to_postgres_append
         from config.config import DB_STR, POSTGRES_SCHEMA

@@ -1,5 +1,6 @@
 from datetime import datetime
 from airflow.decorators import dag, task
+from config.constants import PATH_TO_POETRY_ENV
 
 
 default_args = {
@@ -11,7 +12,7 @@ default_args = {
 
 @dag('1-external_all_in_one_etl', default_args=default_args, schedule_interval="@hourly", catchup=False)
 def dag_external_general_load():
-    @task.external_python(python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
+    @task.external_python(python=PATH_TO_POETRY_ENV)
     def load_external():
         from etl_modules.load import load
         load()
