@@ -1,5 +1,6 @@
 from datetime import datetime
 from airflow.decorators import dag, task
+from config.constants import PATH_TO_POETRY_ENV
 
 
 default_args = {
@@ -11,20 +12,20 @@ default_args = {
 
 @dag('3-GCP-ETL', default_args=default_args, schedule_interval="@hourly", catchup=False)
 def dag_external_general_load():
-    @task.external_python(task_id='extract', python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
+    @task.external_python(task_id='extract', python=PATH_TO_POETRY_ENV)
     def extract_task():
         from etl_modules.extract import gcp_extract
         from config.config import extract_list
         paths_json = gcp_extract(extract_list)
         return paths_json
 
-    @task.external_python(task_id='gcp_transform', python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
+    @task.external_python(task_id='gcp_transform', python=PATH_TO_POETRY_ENV)
     def gcp_transform_task(path_json):
         from etl_modules.gcp_transform import gcp_transform
         path_parquet = gcp_transform(path_json)
         return path_parquet
 
-    @task.external_python(task_id='gcp_load', python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
+    @task.external_python(task_id='gcp_load', python=PATH_TO_POETRY_ENV)
     def gcp_load_task(paths_parquet):
         from etl_modules.gcp_load import gcp_transform_scd_station_info, gcp_load_dim_date, gcp_load_station_info, load_to_gcp_append
         from config.config import GCP_BQ_JSON_CREDENTIALS, GCP_PROJECT_ID, GCP_DATASET_ID
@@ -39,12 +40,12 @@ def dag_external_general_load():
         gcp_load_station_info(df_scd2_records_final_replace, df_new_records_final, df_scd2_records_final_append)
         load_to_gcp_append(paths_parquet_append)
 
-    @task.external_python(task_id='gcp_create_tables', python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
+    @task.external_python(task_id='gcp_create_tables', python=PATH_TO_POETRY_ENV)
     def gcp_create_dataset_tables():
         from etl_modules.gcp_load import gcp_create_schema
         gcp_create_schema()
 
-    @task.external_python(task_id='gcp_create_bucket_and_folders', python='/home/airflow/.cache/pypoetry/virtualenvs/etl-eco-bikes-9TtSrW0h-py3.9/bin/python')
+    @task.external_python(task_id='gcp_create_bucket_and_folders', python=PATH_TO_POETRY_ENV)
     def gcp_create_bucket_and_folders():
         from etl_modules.gcp_load import gcp_create_bucket
         gcp_create_bucket()
