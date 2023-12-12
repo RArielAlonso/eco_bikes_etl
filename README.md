@@ -201,7 +201,7 @@ With the example defined in point number 2, we can extend the tests to all of th
 
 
 ## To be continue working:
-- Run in cloud composer
+- [Run in cloud composer](https://cloud.google.com/composer/docs/composer-2/create-environments?hl=es-419)
 - Verify the timestamp when running through docker
 - Add linters and docstrings, and add to github actions
 - Modify data types in the ETL process
