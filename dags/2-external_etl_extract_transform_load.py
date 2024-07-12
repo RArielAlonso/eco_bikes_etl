@@ -20,8 +20,12 @@ def dag_external_general_load():
         return paths_json
 
     @task.external_python(python=PATH_TO_POETRY_ENV)
-    def transform_task(path_json):
+    def transform_task(path_json, ds=None, ds_nodash=None, data_interval_start=None, ts=None):
         from etl_modules.transform import transform
+        print(ds)
+        print(ds_nodash)
+        print(ts)
+        print(data_interval_start)
         path_parquet = transform(path_json)
         return path_parquet
 

@@ -47,7 +47,6 @@ extract_list = [weather_ds,
 
 # DB CONNECTIONS
 
-POSTGRES_SCHEMA = os.getenv('POSTGRES_SCHEMA')
 POSTGRES_USER = os.getenv('POSTGRES_USER')
 POSTGRES_PASS = os.getenv('POSTGRES_PASS')
 POSTGRES_HOST = os.getenv('POSTGRES_HOST')
